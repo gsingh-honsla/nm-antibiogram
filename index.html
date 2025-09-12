@@ -7,17 +7,20 @@
 <style>
 :root{--green:#2e7d32;--yellow:#f9a825;--red:#c62828;--muted:#555;--blue:#007aff}
 html{scroll-behavior:smooth}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;margin:0;display:flex;flex-direction:column;height:100vh;font-size:17px;background:#f5f5f7;color:#1c1c1e}
-header,footer{padding:.75rem 1.25rem;background:rgba(255,255,255,.8);backdrop-filter:blur(10px)}
-header{border-bottom:1px solid #ccc;position:sticky;top:0;z-index:10}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;margin:0;font-size:17px;background:#f5f5f7;color:#1c1c1e}
+header,footer{padding:.75rem 1.25rem;background:rgba(255,255,255,.8);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10}
 #context{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
 #context button{padding:.6rem 1rem;border:none;border-radius:12px;background:#e5e5ea;font:inherit;cursor:pointer;transition:background .2s}
 #context button.active{background:var(--blue);color:#fff}
+#context[hidden]{display:none}
+#list{padding:0 1rem}
+#list[hidden]{display:none}
 #organismSearch{width:100%;padding:.6rem;margin:.75rem 0;border:1px solid #ccc;border-radius:10px}
-#organisms{list-style:none;margin:0;padding:0;max-height:200px;overflow:auto}
+#organisms{list-style:none;margin:0;padding:0;max-height:60vh;overflow:auto}
 #organisms li+li{margin-top:.25rem}
 #organisms button{display:block;width:100%;padding:.75rem;text-align:left;background:#fff;border:1px solid #ddd;border-radius:12px;font:inherit;cursor:pointer}
-#results{flex:1;overflow:auto;padding:.5rem 1rem}
+#results{padding:1rem}
+#results[hidden]{display:none}
 #antibiotics{list-style:none;margin:0;padding:0}
 #antibiotics li+li{margin-top:.5rem}
 #antibiotics details{display:block;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
@@ -29,14 +32,13 @@ header{border-bottom:1px solid #ccc;position:sticky;top:0;z-index:10}
 .band-red{background:var(--red)}
 .badge{background:#eee;border-radius:.2rem;padding:.1rem .3rem;margin-left:.3rem;font-size:.75rem}
 #filter80{margin:.5rem 0}
-footer{font-size:.85rem}
-footer .bands{display:flex;gap:.5rem;align-items:center}
-footer .bands .chip{margin-right:.2rem}
+#backBtn{margin-bottom:.5rem}
+footer{font-size:.95rem;text-align:center}
+footer .bands{display:flex;gap:1rem;justify-content:center;margin-bottom:.5rem}
+footer .bands span{display:flex;align-items:center;gap:.3rem}
+footer .bands .chip{width:1.2rem;height:1.2rem}
 footer .disclaimer{font-weight:bold}
-#installBanner{position:fixed;bottom:0;left:0;width:100%;background:var(--blue);color:#fff;padding:.5rem;display:none;align-items:center;justify-content:center;gap:.5rem;z-index:1000}
-#installBanner button{background:none;border:none;color:#fff;font-size:1.2rem;line-height:1}
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-@media(min-width:768px){body{flex-direction:row}#list{width:30%;border-right:1px solid #ccc;height:calc(100vh - 7rem);overflow:auto;padding:0 .5rem}#results{width:70%;height:calc(100vh - 7rem);overflow:auto}footer{position:fixed;right:0;top:0;width:200px;height:100vh;overflow:auto}#installBanner{width:300px;right:1rem;left:auto;bottom:1rem;border-radius:.5rem}}
 @media(prefers-reduced-motion:reduce){*{animation:none;transition:none}}
 </style>
 </head>
@@ -44,14 +46,15 @@ footer .disclaimer{font-weight:bold}
 <header style="box-shadow:0 1px 2px rgba(0,0,0,0.1)">
 <label for="site">Site:</label>
 <select id="site"></select>
-<div id="context" role="tablist"></div>
+<div id="context" role="tablist" hidden></div>
 </header>
-<div id="list">
+<div id="list" hidden>
 <label for="organismSearch" class="visually-hidden">Search organism</label>
 <input id="organismSearch" type="search" placeholder="Search organism" aria-label="Search organism">
 <ul id="organisms"></ul>
 </div>
 <section id="results" hidden>
+<button id="backBtn">&larr; Back</button>
 <h2 id="organismTitle"></h2>
 <p id="contextFlag" style="color:var(--red);"></p>
 <label id="filter80"><input type="checkbox"> Show only ≥80% susceptible</label>
@@ -59,29 +62,93 @@ footer .disclaimer{font-weight:bold}
 <p id="noData" hidden>No data for this organism/context at this site.</p>
 </section>
 <footer style="box-shadow:0 -1px 2px rgba(0,0,0,0.05)">
-<div class="bands"><span class="chip band-green"></span>≥80% <span class="chip band-yellow"></span>70–79% <span class="chip band-red"></span>≤69%</div>
+<div class="bands"><strong>Color key:</strong>
+<span><span class="chip band-green"></span>≥80%</span>
+<span><span class="chip band-yellow"></span>70–79%</span>
+<span><span class="chip band-red"></span>≤69%</span>
+</div>
 <p class="hint"></p>
 <p class="disclaimer">Use patient-level cultures and ID consult for definitive therapy.</p>
 </footer>
-<div id="installBanner"><span>Add to Home Screen</span><button aria-label="Dismiss">×</button></div>
 <script>
 const DATA_URL='nm_antibiogram_full_final.json';
-let DATA=null;const SKEY={site:'nm-ab-site',context:'nm-ab-context',organism:'nm-ab-organism',banner:'nm-ab-banner'};
+let DATA=null;
+let current={site:null,ctx:null,org:null};
 const qs=s=>document.querySelector(s);
-const siteSel=qs('#site'),ctxDiv=qs('#context'),orgList=qs('#organisms'),orgSearch=qs('#organismSearch'),results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics'),filter80=qs('#filter80 input'),flag=qs('#contextFlag'),noData=qs('#noData'),hint=qs('.hint'),banner=qs('#installBanner');
+const siteSel=qs('#site'),ctxDiv=qs('#context'),orgSearch=qs('#organismSearch'),orgList=qs('#organisms'),listDiv=qs('#list');
+const results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics'),filter80=qs('#filter80 input'),flag=qs('#contextFlag'),noData=qs('#noData'),hint=qs('.hint'),backBtn=qs('#backBtn');
+
 fetch(DATA_URL).then(r=>r.json()).then(d=>{DATA=d;init();});
-function init(){populateSites();window.addEventListener('hashchange',syncFromHash);hint.textContent=DATA.legend.hint;syncFromHash();orgSearch.addEventListener('input',filterOrganisms);filter80.addEventListener('change',()=>selectOrganism(current.org,true));setupBanner();}
-function populateSites(){siteSel.innerHTML=DATA.sites.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');siteSel.addEventListener('change',()=>{updateHash({site:siteSel.value});});}
-let current={site:null,context:null,org:null};
-function syncFromHash(){const p=new URLSearchParams(location.hash.slice(1));let s=p.get('site')||localStorage.getItem(SKEY.site)||'nmh';if(!DATA.sites.some(x=>x.id===s))s='nmh';siteSel.value=s;renderContexts(s);let c=p.get('context')||localStorage.getItem(SKEY.context)||DATA.sites.find(x=>x.id===s).contexts[0].id;if(!DATA.sites.find(x=>x.id===s).contexts.some(x=>x.id===c))c=DATA.sites.find(x=>x.id===s).contexts[0].id;activateContext(c,false);let o=p.get('organism')||localStorage.getItem(SKEY.organism);if(o && current.ctx.organisms.some(x=>x.id===o))selectOrganism({id:o},false);}
-function renderContexts(siteId){const site=DATA.sites.find(s=>s.id===siteId);ctxDiv.innerHTML=site.contexts.map(c=>`<button role="tab" data-id="${c.id}">${c.name}</button>`).join('');ctxDiv.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>activateContext(b.dataset.id,true)));current.site=site;}
-function activateContext(ctxId,upd){const ctx=current.site.contexts.find(c=>c.id===ctxId);current.ctx=ctx;ctxDiv.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.id===ctxId));renderOrganisms();results.hidden=true;if(upd){updateHash({site:current.site.id,context:ctxId});localStorage.setItem(SKEY.site,current.site.id);localStorage.setItem(SKEY.context,ctxId);localStorage.removeItem(SKEY.organism);}}
-function renderOrganisms(){const orgs=current.ctx.organisms.slice().sort((a,b)=>a.display.localeCompare(b.display));orgList.innerHTML=orgs.map(o=>`<li><button data-id="${o.id}">${o.display}</button></li>`).join('');orgList.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>selectOrganism({id:b.dataset.id},true)));orgSearch.value='';}
-function filterOrganisms(){const q=orgSearch.value.toLowerCase();orgList.querySelectorAll('li').forEach(li=>{li.style.display=li.textContent.toLowerCase().includes(q)?'':'none';});}
-function selectOrganism({id},upd){const org=current.ctx.organisms.find(o=>o.id===id);if(!org){noData.hidden=false;return;}current.org=org;title.textContent=`${org.display} (n=${org.isolates})`;flag.textContent=current.ctx.flags&&current.ctx.flags.includes('limited-isolates')?DATA.legend.badges['limited-isolates']:'';renderAntibiotics();results.hidden=false;if(upd){updateHash({site:current.site.id,context:current.ctx.id,organism:id});localStorage.setItem(SKEY.organism,id);}}
-function renderAntibiotics(){let abs=current.org.antibiotics.slice().sort((a,b)=>b.pctS-a.pctS||a.drug.localeCompare(b.drug));antList.innerHTML='';abs.forEach(ab=>{if(filter80.checked && ab.pctS<80)return;const band=ab.pctS>=80?'green':ab.pctS>=70?'yellow':'red';const badges=(ab.flags||[]).map(f=>`<span class=\"badge\">${DATA.legend.badges[f]||f}</span>`).join('');const notes=ab.notes.map(n=>`<li>${n}</li>`).join('');const caut=ab.cautions.map(c=>`<li>${c}</li>`).join('');antList.insertAdjacentHTML('beforeend',`<li><details><summary><span class=\"drug\">${ab.drug}</span><span>${badges}</span><span class=\"pct\"><span class=\"chip band-${band}\" aria-hidden=\"true\"></span>${ab.pctS}%</span></summary>${notes||caut?`<div class=\"drawer\"><ul>${notes}</ul><ul>${caut}</ul></div>`:''}</details></li>`);});}
-function updateHash({site,context,organism}){const p=new URLSearchParams();if(site)p.set('site',site);if(context)p.set('context',context);if(organism)p.set('organism',organism);history.replaceState(null,'','#'+p.toString());}
-function setupBanner(){if(window.innerWidth>768)return;const t=localStorage.getItem(SKEY.banner);if(t && Date.now()-t<2592e6)return;banner.style.display='flex';banner.querySelector('button').onclick=()=>{banner.remove();localStorage.setItem(SKEY.banner,Date.now());};}
+
+function init(){
+  hint.textContent=DATA.legend.hint;
+  populateSites();
+  siteSel.addEventListener('change',()=>renderContexts(siteSel.value));
+  orgSearch.addEventListener('input',filterOrganisms);
+  filter80.addEventListener('change',renderAntibiotics);
+  backBtn.addEventListener('click',()=>{results.hidden=true;listDiv.hidden=false;});
+}
+
+function populateSites(){
+  siteSel.innerHTML='<option value="" selected disabled>Select site</option>'+
+    DATA.sites.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+function renderContexts(siteId){
+  current.site=DATA.sites.find(s=>s.id===siteId);
+  ctxDiv.innerHTML=current.site.contexts.map(c=>`<button data-id="${c.id}">${c.name}</button>`).join('');
+  ctxDiv.hidden=false;
+  ctxDiv.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>activateContext(b.dataset.id)));
+  listDiv.hidden=true;
+  results.hidden=true;
+}
+
+function activateContext(ctxId){
+  current.ctx=current.site.contexts.find(c=>c.id===ctxId);
+  ctxDiv.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.id===ctxId));
+  renderOrganisms();
+  listDiv.hidden=false;
+  results.hidden=true;
+}
+
+function renderOrganisms(){
+  const orgs=current.ctx.organisms.slice().sort((a,b)=>a.display.localeCompare(b.display));
+  orgList.innerHTML=orgs.map(o=>`<li><button data-id="${o.id}">${o.display}</button></li>`).join('');
+  orgList.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>selectOrganism(b.dataset.id)));
+  orgSearch.value='';
+  filterOrganisms();
+}
+
+function filterOrganisms(){
+  const q=orgSearch.value.toLowerCase();
+  orgList.querySelectorAll('li').forEach(li=>{
+    li.style.display=li.textContent.toLowerCase().includes(q)?'':'none';
+  });
+}
+
+function selectOrganism(id){
+  const org=current.ctx.organisms.find(o=>o.id===id);
+  if(!org){noData.hidden=false;return;}
+  current.org=org;
+  title.textContent=org.display;
+  flag.textContent=current.ctx.flags&&current.ctx.flags.includes('limited-isolates')?DATA.legend.badges['limited-isolates']:'';
+  renderAntibiotics();
+  listDiv.hidden=true;
+  results.hidden=false;
+}
+
+function renderAntibiotics(){
+  antList.innerHTML='';
+  let abs=current.org.antibiotics.slice().sort((a,b)=>b.pctS-a.pctS||a.drug.localeCompare(b.drug));
+  abs.forEach(ab=>{
+    if(filter80.checked && ab.pctS<80)return;
+    const band=ab.pctS>=80?'green':ab.pctS>=70?'yellow':'red';
+    const badges=(ab.flags||[]).map(f=>`<span class="badge">${DATA.legend.badges[f]||f}</span>`).join('');
+    const notes=ab.notes.map(n=>`<li>${n}</li>`).join('');
+    const caut=ab.cautions.map(c=>`<li>${c}</li>`).join('');
+    antList.insertAdjacentHTML('beforeend',`<li><details><summary><span class="drug">${ab.drug}</span><span>${badges}</span><span class="pct"><span class="chip band-${band}" aria-hidden="true"></span>${ab.pctS}%</span></summary>${notes||caut?`<div class="drawer"><ul>${notes}</ul><ul>${caut}</ul></div>`:''}</details></li>`);
+  });
+}
 </script>
 </body>
 </html>
