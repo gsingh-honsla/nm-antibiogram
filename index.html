@@ -5,22 +5,23 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Digital NM Antibiogram</title>
 <style>
-:root{--green:#2e7d32;--yellow:#f9a825;--red:#c62828;--muted:#555}
-body{font-family:system-ui,sans-serif;margin:0;display:flex;flex-direction:column;height:100vh;font-size:17px}
-header,footer{padding:.5rem 1rem}
-header{border-bottom:1px solid #ccc}
-#context{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.5rem}
-#context button{padding:.4rem .7rem;border:1px solid #ccc;border-radius:9999px;background:#fff;font:inherit;cursor:pointer}
-#context button.active{background:#0057b7;color:#fff;border-color:#0057b7}
-#organismSearch{width:100%;padding:.4rem;margin:.5rem 0}
-#organisms{list-style:none;margin:0;padding:0;max-height:200px;overflow:auto;border:1px solid #ccc;border-radius:.3rem}
-#organisms li{border-bottom:1px solid #eee}
-#organisms button{display:block;width:100%;padding:.5rem;text-align:left;background:none;border:none;font:inherit}
+:root{--green:#2e7d32;--yellow:#f9a825;--red:#c62828;--muted:#555;--blue:#007aff}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;margin:0;display:flex;flex-direction:column;height:100vh;font-size:17px;background:#f5f5f7;color:#1c1c1e}
+header,footer{padding:.75rem 1.25rem;background:rgba(255,255,255,.8);backdrop-filter:blur(10px)}
+header{border-bottom:1px solid #ccc;position:sticky;top:0;z-index:10}
+#context{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+#context button{padding:.6rem 1rem;border:none;border-radius:12px;background:#e5e5ea;font:inherit;cursor:pointer;transition:background .2s}
+#context button.active{background:var(--blue);color:#fff}
+#organismSearch{width:100%;padding:.6rem;margin:.75rem 0;border:1px solid #ccc;border-radius:10px}
+#organisms{list-style:none;margin:0;padding:0;max-height:200px;overflow:auto}
+#organisms li+li{margin-top:.25rem}
+#organisms button{display:block;width:100%;padding:.75rem;text-align:left;background:#fff;border:1px solid #ddd;border-radius:12px;font:inherit;cursor:pointer}
 #results{flex:1;overflow:auto;padding:.5rem 1rem}
 #antibiotics{list-style:none;margin:0;padding:0}
-#antibiotics li{border-bottom:1px solid #eee}
-#antibiotics details{display:block}
-#antibiotics summary{display:flex;justify-content:space-between;align-items:center;padding:.5rem;cursor:pointer}
+#antibiotics li+li{margin-top:.5rem}
+#antibiotics details{display:block;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+#antibiotics summary{display:flex;justify-content:space-between;align-items:center;padding:.75rem;cursor:pointer}
 #antibiotics summary::-webkit-details-marker{display:none}
 #antibiotics .chip{width:1rem;height:1rem;border-radius:.2rem;margin-right:.3rem;display:inline-block}
 .band-green{background:var(--green)}
@@ -28,18 +29,19 @@ header{border-bottom:1px solid #ccc}
 .band-red{background:var(--red)}
 .badge{background:#eee;border-radius:.2rem;padding:.1rem .3rem;margin-left:.3rem;font-size:.75rem}
 #filter80{margin:.5rem 0}
-footer{background:#f8f8f8;font-size:.85rem}
+footer{font-size:.85rem}
 footer .bands{display:flex;gap:.5rem;align-items:center}
 footer .bands .chip{margin-right:.2rem}
 footer .disclaimer{font-weight:bold}
-#installBanner{position:fixed;bottom:0;left:0;width:100%;background:#0057b7;color:#fff;padding:.5rem;display:none;align-items:center;justify-content:center;gap:.5rem;z-index:1000}
+#installBanner{position:fixed;bottom:0;left:0;width:100%;background:var(--blue);color:#fff;padding:.5rem;display:none;align-items:center;justify-content:center;gap:.5rem;z-index:1000}
 #installBanner button{background:none;border:none;color:#fff;font-size:1.2rem;line-height:1}
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 @media(min-width:768px){body{flex-direction:row}#list{width:30%;border-right:1px solid #ccc;height:calc(100vh - 7rem);overflow:auto;padding:0 .5rem}#results{width:70%;height:calc(100vh - 7rem);overflow:auto}footer{position:fixed;right:0;top:0;width:200px;height:100vh;overflow:auto}#installBanner{width:300px;right:1rem;left:auto;bottom:1rem;border-radius:.5rem}}
 @media(prefers-reduced-motion:reduce){*{animation:none;transition:none}}
 </style>
 </head>
 <body>
-<header>
+<header style="box-shadow:0 1px 2px rgba(0,0,0,0.1)">
 <label for="site">Site:</label>
 <select id="site"></select>
 <div id="context" role="tablist"></div>
@@ -56,7 +58,7 @@ footer .disclaimer{font-weight:bold}
 <ul id="antibiotics"></ul>
 <p id="noData" hidden>No data for this organism/context at this site.</p>
 </section>
-<footer>
+<footer style="box-shadow:0 -1px 2px rgba(0,0,0,0.05)">
 <div class="bands"><span class="chip band-green"></span>≥80% <span class="chip band-yellow"></span>70–79% <span class="chip band-red"></span>≤69%</div>
 <p class="hint"></p>
 <p class="disclaimer">Use patient-level cultures and ID consult for definitive therapy.</p>
