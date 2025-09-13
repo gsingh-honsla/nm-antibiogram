@@ -26,6 +26,12 @@ header,footer{padding:.75rem 1.25rem;background:rgba(255,255,255,.8);backdrop-fi
 #antibiotics details{display:block;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
 #antibiotics summary{display:flex;justify-content:space-between;align-items:center;padding:.75rem;cursor:pointer}
 #antibiotics summary::-webkit-details-marker{display:none}
+#antibiotics details.has-info .drug{display:flex;align-items:center}
+#antibiotics details.has-info .drug::after{content:'▸';margin-left:.3rem;transition:transform .2s}
+#antibiotics details.has-info[open] .drug::after{transform:rotate(90deg)}
+#antibiotics .drawer{padding:.5rem 1rem;border-top:1px solid #eee}
+#antibiotics .drawer ul{margin:.25rem 0;padding-left:1.25rem}
+#antibiotics .drawer ul+ul{margin-top:.5rem}
 #antibiotics .chip{width:1rem;height:1rem;border-radius:.2rem;margin-right:.3rem;display:inline-block}
 .band-green{background:var(--green)}
 .band-yellow{background:var(--yellow)}
@@ -151,7 +157,11 @@ function renderAntibiotics(){
     const badges=(ab.flags||[]).map(f=>`<span class="badge">${DATA.legend.badges[f]||f}</span>`).join('');
     const notes=ab.notes.map(n=>`<li>${n}</li>`).join('');
     const caut=ab.cautions.map(c=>`<li>${c}</li>`).join('');
-    antList.insertAdjacentHTML('beforeend',`<li><details><summary><span class="drug">${ab.drug}</span><span>${badges}</span><span class="pct"><span class="chip band-${band}" aria-hidden="true"></span>${ab.pctS}%</span></summary>${notes||caut?`<div class="drawer"><ul>${notes}</ul><ul>${caut}</ul></div>`:''}</details></li>`);
+    const notesHtml=notes?`<ul>${notes}</ul>`:'';
+    const cautHtml=caut?`<ul>${caut}</ul>`:'';
+    const drawer=notesHtml||cautHtml?`<div class="drawer">${notesHtml}${cautHtml}</div>`:'';
+    const cls=drawer?' class="has-info"':'';
+    antList.insertAdjacentHTML('beforeend',`<li><details${cls}><summary><span class="drug">${ab.drug}</span><span>${badges}</span><span class="pct"><span class="chip band-${band}" aria-hidden="true"></span>${ab.pctS}%</span></summary>${drawer}</details></li>`);
   });
 }
 
