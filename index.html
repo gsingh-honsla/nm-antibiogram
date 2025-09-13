@@ -38,11 +38,12 @@ header,footer{padding:.75rem 1.25rem;background:rgba(255,255,255,.8);backdrop-fi
 .band-red{background:var(--red)}
 .badge{background:#eee;border-radius:.2rem;padding:.1rem .3rem;margin-left:.3rem;font-size:.75rem}
 #filter80{margin:.5rem 0}
-footer{font-size:.95rem;text-align:center}
+footer{font-size:.95rem;text-align:center;flex-direction:column}
 footer .bands{display:flex;gap:1rem;justify-content:center;margin-bottom:.5rem}
 footer .bands span{display:flex;align-items:center;gap:.3rem}
 footer .bands .chip{width:1.2rem;height:1.2rem}
 footer .disclaimer{font-weight:bold}
+footer .credit{font-size:.85rem;color:var(--muted);margin-top:.5rem}
 .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 @media(prefers-reduced-motion:reduce){*{animation:none;transition:none}}
 </style>
@@ -82,6 +83,7 @@ footer .disclaimer{font-weight:bold}
 </div>
 <p class="hint"></p>
 <p class="disclaimer">Use patient-level cultures and ID consult for definitive therapy.</p>
+<p class="credit">Made with ❤️ for the NM community.</p>
 </footer>
 <script>
 const DATA_URL='nm_antibiogram_full_final_v6.json';
