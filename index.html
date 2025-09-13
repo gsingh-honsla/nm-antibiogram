@@ -51,7 +51,7 @@ footer .credit{font-size:.85rem;color:var(--muted);margin-top:.5rem}
 <body>
 <header style="box-shadow:0 1px 2px rgba(0,0,0,0.1)">
 <button id="backBtn" hidden>&larr; Back</button>
-<h1 style="font-size:1.25rem;margin:0;">Digital NM Antibiogram</h1>
+<h1 style="font-size:1.25rem;margin:0;"><a href="/" id="homeLink" style="color:inherit;text-decoration:none;">Digital NM Antibiogram</a></h1>
 </header>
 <main>
 <section id="siteView" class="view">
@@ -91,7 +91,7 @@ let DATA=null;
 let current={site:null,ctx:null,org:null};
 const qs=s=>document.querySelector(s);
 const siteSel=qs('#site'),ctxDiv=qs('#context'),orgSearch=qs('#organismSearch'),orgList=qs('#organisms');
-const results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics'),filter80=qs('#filter80 input'),flag=qs('#contextFlag'),noData=qs('#noData'),hint=qs('.hint'),backBtn=qs('#backBtn');
+const results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics'),filter80=qs('#filter80 input'),flag=qs('#contextFlag'),noData=qs('#noData'),hint=qs('.hint'),backBtn=qs('#backBtn'),homeLink=qs('#homeLink');
 const views=['siteView','contextView','organismView','results'];
 let step=0;
 
@@ -104,6 +104,7 @@ function init(){
   orgSearch.addEventListener('input',filterOrganisms);
   filter80.addEventListener('change',renderAntibiotics);
   backBtn.addEventListener('click',()=>{if(step>0)showStep(step-1);});
+  homeLink.addEventListener('click',e=>{e.preventDefault();showStep(0);});
   showStep(0);
 }
 
