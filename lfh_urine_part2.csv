@@ -1,0 +1,12 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Lake Forest Hospital,LFH,Urine,Escherichia coli,Ampicillin,46
+Lake Forest Hospital,LFH,Urine,Escherichia coli,Ceftriaxone,91
+Lake Forest Hospital,LFH,Urine,Escherichia coli,Ciprofloxacin,72
+Lake Forest Hospital,LFH,Urine,Escherichia coli,Nitrofurantoin,96
+Lake Forest Hospital,LFH,Urine,Escherichia coli,Tobramycin,89
+Lake Forest Hospital,LFH,Urine,Klebsiella pneumoniae,Ceftriaxone,88
+Lake Forest Hospital,LFH,Urine,Klebsiella pneumoniae,Ciprofloxacin,84
+Lake Forest Hospital,LFH,Urine,Klebsiella pneumoniae,Nitrofurantoin,35
+Lake Forest Hospital,LFH,Urine,Klebsiella pneumoniae,Tobramycin,94
+Lake Forest Hospital,LFH,Urine,Pseudomonas aeruginosa,Cefepime,88
+Lake Forest Hospital,LFH,Urine,Pseudomonas aeruginosa,Tobramycin,95

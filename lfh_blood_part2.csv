@@ -1,0 +1,8 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Lake Forest Hospital,LFH,Blood,Escherichia coli,Ampicillin,40
+Lake Forest Hospital,LFH,Blood,Escherichia coli,Ceftriaxone,78
+Lake Forest Hospital,LFH,Blood,Escherichia coli,Ciprofloxacin,58
+Lake Forest Hospital,LFH,Blood,Escherichia coli,Tobramycin,80
+Lake Forest Hospital,LFH,Blood,Klebsiella species,Ceftriaxone,82
+Lake Forest Hospital,LFH,Blood,Klebsiella species,Ciprofloxacin,85
+Lake Forest Hospital,LFH,Blood,Klebsiella species,Tobramycin,91

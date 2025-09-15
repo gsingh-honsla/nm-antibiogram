@@ -1,0 +1,10 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Lake Forest Hospital,LFH,ED,Escherichia coli,Ampicillin,47
+Lake Forest Hospital,LFH,ED,Escherichia coli,Ceftriaxone,91
+Lake Forest Hospital,LFH,ED,Escherichia coli,Ciprofloxacin,74
+Lake Forest Hospital,LFH,ED,Escherichia coli,Tobramycin,87
+Lake Forest Hospital,LFH,ED,Klebsiella pneumoniae,Ceftriaxone,91
+Lake Forest Hospital,LFH,ED,Klebsiella pneumoniae,Ciprofloxacin,84
+Lake Forest Hospital,LFH,ED,Klebsiella pneumoniae,Tobramycin,94
+Lake Forest Hospital,LFH,ED,Pseudomonas aeruginosa,Cefepime,93
+Lake Forest Hospital,LFH,ED,Pseudomonas aeruginosa,Tobramycin,95
