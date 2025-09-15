@@ -625,7 +625,7 @@ footer .credit {
 <p id="contextFlag"></p>
 <label id="filter80"><input type="checkbox"> Show only ≥80% susceptible</label>
 <ul id="antibiotics"></ul>
-<p id="noData" hidden>No data for this organism/context at this site.</p>
+<p id="noData" hidden>No antibiotics match the current filters for this organism/context at this site.</p>
 </section>
 </main>
 <footer>
@@ -639,7 +639,77 @@ footer .credit {
 <p class="credit">Made with ❤️ for the NM community.</p>
 </footer>
 <script>
-const DATA_URL='nm_antibiogram_full_final_v6.json';
+const CSV_FILES=[
+  'marianjoy_facilitywide_part1.csv',
+  'marianjoy_facilitywide_part2.csv',
+  'marianjoy_urine_part1.csv',
+  'nmh_blood_part1.csv',
+  'nmh_blood_part2.csv',
+  'nmh_ed_part1.csv',
+  'nmh_ed_part2.csv',
+  'nmh_facilitywide_part1.csv',
+  'nmh_facilitywide_part2.csv',
+  'nmh_immuno_part1.csv',
+  'nmh_immuno_part2.csv',
+  'nmh_micu_part1.csv',
+  'nmh_micu_part2.csv',
+  'nmh_other_icu_part1.csv',
+  'nmh_other_icu_part2.csv',
+  'nmh_respiratory_part1.csv',
+  'nmh_respiratory_part2.csv',
+  'nmh_urine_part1.csv',
+  'nmh_urine_part2.csv',
+  'nw_blood_part1.csv',
+  'nw_blood_part2.csv',
+  'nw_ed_part1.csv',
+  'nw_ed_part2.csv',
+  'nw_facilitywide_part1.csv',
+  'nw_facilitywide_part2.csv',
+  'nw_urine_part1.csv',
+  'nw_urine_part2.csv',
+  'palos_blood_part1.csv',
+  'palos_blood_part2.csv',
+  'palos_ed_part1.csv',
+  'palos_ed_part2.csv',
+  'palos_facilitywide_part1.csv',
+  'palos_facilitywide_part2.csv',
+  'palos_urine_part1.csv',
+  'palos_urine_part2.csv',
+  'west_region_dch_urinary_part1.csv',
+  'west_region_dch_urinary_part2.csv',
+  'west_region_khvw_facilitywide_part1.csv',
+  'west_region_khvw_facilitywide_part2.csv',
+  'west_region_khvw_urinary_part1.csv',
+  'west_region_khvw_urinary_part2.csv'
+];
+
+const SPECIMEN_LABELS={
+  'Blood':'Blood',
+  'ED':'Emergency Department',
+  'Facility-Wide':'Facility-Wide',
+  'Immunocompromised Host':'Immunocompromised Host',
+  'MICU':'MICU',
+  'Other ICU':'Other ICU',
+  'Respiratory':'Respiratory',
+  'Urine':'Urine'
+};
+
+const CONTEXT_PRIORITY=[
+  'Facility-Wide',
+  'Urine',
+  'Blood',
+  'Emergency Department',
+  'Respiratory',
+  'MICU',
+  'Other ICU',
+  'Immunocompromised Host'
+];
+
+const LEGEND={
+  hint:'For severe syndromes aim for ≥90% when feasible; ≥80% may be acceptable for lower-risk infections.',
+  badges:{}
+};
+
 let DATA=null;
 let current={site:null,ctx:null,org:null};
 const qs=s=>document.querySelector(s);
@@ -648,7 +718,142 @@ const results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics
 const views=['siteView','contextView','organismView','results'];
 let step=0;
 
-fetch(DATA_URL).then(r=>r.json()).then(d=>{DATA=d;init();});
+loadData();
+
+function loadData(){
+  Promise.all(CSV_FILES.map(loadCsv)).then(parts=>{
+    const rows=parts.flat();
+    DATA={legend:LEGEND,sites:buildSites(rows)};
+    init();
+  }).catch(err=>{
+    console.error('Failed to load data',err);
+    hint.textContent='Unable to load data. Please refresh.';
+    siteSel.innerHTML='<option value="">Data unavailable</option>';
+  });
+}
+
+function loadCsv(path){
+  return fetch(path).then(resp=>{
+    if(!resp.ok) throw new Error(`Failed to load ${path}`);
+    return resp.text();
+  }).then(parseCsv);
+}
+
+function parseCsv(text){
+  const rows=[];
+  let field='',row=[],inQuotes=false;
+  for(let i=0;i<text.length;i++){
+    const char=text[i];
+    if(inQuotes){
+      if(char==='"'){
+        if(text[i+1]==='"'){field+='"';i++;}
+        else{inQuotes=false;}
+      }else{field+=char;}
+    }else{
+      if(char==='"'){inQuotes=true;}
+      else if(char===','){row.push(field);field='';}
+      else if(char==='\r'){continue;}
+      else if(char==='\n'){
+        row.push(field);
+        if(row.some(cell=>cell.trim()!==''))rows.push(row);
+        row=[];
+        field='';
+      }else{field+=char;}
+    }
+  }
+  if(field.length||row.length){
+    row.push(field);
+    if(row.some(cell=>cell.trim()!==''))rows.push(row);
+  }
+  if(!rows.length)return [];
+  const headers=rows[0].map(h=>h.trim());
+  const records=[];
+  for(let i=1;i<rows.length;i++){
+    const line=rows[i];
+    const record={};
+    headers.forEach((header,idx)=>{record[header]=(line[idx]??'').trim();});
+    if(Object.values(record).every(v=>v===''))continue;
+    records.push(record);
+  }
+  return records;
+}
+
+function buildSites(rows){
+  const siteMap=new Map();
+  rows.forEach(row=>{
+    const region=(row.Region||'').trim();
+    const siteName=(row.Site||'').trim();
+    const specimen=(row.Specimen_Type||'').trim();
+    const organism=(row.Organism||'').trim();
+    const antibiotic=(row.Antibiotic||'').trim();
+    const pct=Number((row.Susceptibility_Percent||'').replace('%',''));
+    if(!siteName||!specimen||!organism||!antibiotic||Number.isNaN(pct))return;
+    if(!siteMap.has(siteName)){
+      const display=region&&region!==siteName?`${region} (${siteName})`:(region||siteName);
+      siteMap.set(siteName,{id:slugify(siteName),name:display,contexts:new Map()});
+    }
+    const siteEntry=siteMap.get(siteName);
+    if(!siteEntry.contexts.has(specimen)){
+      siteEntry.contexts.set(specimen,{
+        id:slugify(specimen),
+        name:SPECIMEN_LABELS[specimen]||specimen,
+        flags:[],
+        organisms:new Map()
+      });
+    }
+    const ctxEntry=siteEntry.contexts.get(specimen);
+    if(!ctxEntry.organisms.has(organism)){
+      ctxEntry.organisms.set(organism,{
+        id:slugify(organism),
+        display:organism,
+        isolates:null,
+        antibiotics:[]
+      });
+    }
+    const orgEntry=ctxEntry.organisms.get(organism);
+    orgEntry.antibiotics.push({
+      drug:antibiotic,
+      pctS:pct,
+      notes:[],
+      cautions:[],
+      flags:[]
+    });
+  });
+
+  return Array.from(siteMap.values()).map(site=>{
+    const contexts=Array.from(site.contexts.values()).map(ctx=>{
+      const organisms=Array.from(ctx.organisms.values()).map(org=>{
+        org.antibiotics.sort((a,b)=>b.pctS-a.pctS||a.drug.localeCompare(b.drug));
+        return{
+          id:org.id,
+          display:org.display,
+          isolates:org.isolates,
+          antibiotics:org.antibiotics
+        };
+      }).sort((a,b)=>a.display.localeCompare(b.display));
+      return{
+        id:ctx.id,
+        name:ctx.name,
+        flags:ctx.flags,
+        organisms:organisms
+      };
+    }).sort((a,b)=>contextRank(a.name)-contextRank(b.name)||a.name.localeCompare(b.name));
+    return{
+      id:site.id,
+      name:site.name,
+      contexts:contexts
+    };
+  }).sort((a,b)=>a.name.localeCompare(b.name));
+}
+
+function contextRank(name){
+  const idx=CONTEXT_PRIORITY.indexOf(name);
+  return idx===-1?CONTEXT_PRIORITY.length:idx;
+}
+
+function slugify(str){
+  return str.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
 
 function init(){
   hint.textContent=DATA.legend.hint;
@@ -662,7 +867,7 @@ function init(){
 }
 
 function populateSites(){
-  siteSel.innerHTML='<option value="" selected disabled>Select site</option>'+
+  siteSel.innerHTML='<option value="" selected disabled>Select site</option>'+'\n'+
     DATA.sites.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
 }
 
@@ -696,19 +901,24 @@ function filterOrganisms(){
 
 function selectOrganism(id){
   const org=current.ctx.organisms.find(o=>o.id===id);
-  if(!org){noData.hidden=false;return;}
+  if(!org){
+    noData.hidden=false;
+    return;
+  }
   current.org=org;
   title.textContent=org.display;
   flag.textContent=current.ctx.flags&&current.ctx.flags.includes('limited-isolates')?DATA.legend.badges['limited-isolates']:'';
+  noData.hidden=true;
   renderAntibiotics();
   showStep(3);
 }
 
 function renderAntibiotics(){
   antList.innerHTML='';
-  let abs=current.org.antibiotics.slice().sort((a,b)=>b.pctS-a.pctS||a.drug.localeCompare(b.drug));
+  let count=0;
+  const abs=current.org.antibiotics.slice().sort((a,b)=>b.pctS-a.pctS||a.drug.localeCompare(b.drug));
   abs.forEach(ab=>{
-    if(filter80.checked && ab.pctS<80)return;
+    if(filter80.checked&&ab.pctS<80)return;
     const band=ab.pctS>=80?'green':ab.pctS>=70?'yellow':'red';
     const badges=(ab.flags||[]).map(f=>`<span class="badge">${DATA.legend.badges[f]||f}</span>`).join('');
     const notes=ab.notes.map(n=>`<li>${n}</li>`).join('');
@@ -718,7 +928,9 @@ function renderAntibiotics(){
     const drawer=notesHtml||cautHtml?`<div class="drawer">${notesHtml}${cautHtml}</div>`:'';
     const cls=drawer?' class="has-info"':'';
     antList.insertAdjacentHTML('beforeend',`<li><details${cls}><summary><span class="drug">${ab.drug}</span><span>${badges}</span><span class="pct"><span class="chip band-${band}" aria-hidden="true"></span>${ab.pctS}%</span></summary>${drawer}</details></li>`);
+    count++;
   });
+  noData.hidden=count>0;
 }
 
 function showStep(n){
