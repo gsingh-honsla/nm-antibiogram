@@ -1,0 +1,10 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Palos Hospital,Palos Hospital,Urine,Escherichia coli,Ampicillin,50
+Palos Hospital,Palos Hospital,Urine,Escherichia coli,Ceftriaxone,91
+Palos Hospital,Palos Hospital,Urine,Escherichia coli,Ciprofloxacin,74
+Palos Hospital,Palos Hospital,Urine,Escherichia coli,Nitrofurantoin,97
+Palos Hospital,Palos Hospital,Urine,Escherichia coli,Tobramycin,90
+Palos Hospital,Palos Hospital,Urine,Klebsiella pneumoniae,Ceftriaxone,73
+Palos Hospital,Palos Hospital,Urine,Klebsiella pneumoniae,Ciprofloxacin,81
+Palos Hospital,Palos Hospital,Urine,Klebsiella pneumoniae,Nitrofurantoin,32
+Palos Hospital,Palos Hospital,Urine,Klebsiella pneumoniae,Tobramycin,90

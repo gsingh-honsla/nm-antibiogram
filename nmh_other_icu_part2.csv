@@ -1,0 +1,10 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Northwestern Memorial Hospital,NMH,Other ICU,Escherichia coli,Ampicillin,35
+Northwestern Memorial Hospital,NMH,Other ICU,Escherichia coli,Ceftriaxone,78
+Northwestern Memorial Hospital,NMH,Other ICU,Escherichia coli,Ciprofloxacin,57
+Northwestern Memorial Hospital,NMH,Other ICU,Escherichia coli,Tobramycin,80
+Northwestern Memorial Hospital,NMH,Other ICU,Klebsiella pneumoniae,Ceftriaxone,63
+Northwestern Memorial Hospital,NMH,Other ICU,Klebsiella pneumoniae,Ciprofloxacin,62
+Northwestern Memorial Hospital,NMH,Other ICU,Klebsiella pneumoniae,Tobramycin,77
+Northwestern Memorial Hospital,NMH,Other ICU,Pseudomonas aeruginosa,Cefepime,74
+Northwestern Memorial Hospital,NMH,Other ICU,Pseudomonas aeruginosa,Tobramycin,93

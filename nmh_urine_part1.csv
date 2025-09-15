@@ -1,0 +1,9 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Northwestern Memorial Hospital,NMH,Urine,Enterococcus faecalis,Ampicillin,100
+Northwestern Memorial Hospital,NMH,Urine,Enterococcus faecalis,Vancomycin,99
+Northwestern Memorial Hospital,NMH,Urine,Enterococcus faecium,Ampicillin,9
+Northwestern Memorial Hospital,NMH,Urine,Enterococcus faecium,Vancomycin,30
+Northwestern Memorial Hospital,NMH,Urine,Vancomycin-Resistant Enterococci,Ampicillin,8
+Northwestern Memorial Hospital,NMH,Urine,Vancomycin-Resistant Enterococci,Vancomycin,37
+Northwestern Memorial Hospital,NMH,Urine,Staphylococcus aureus,Clindamycin,56
+Northwestern Memorial Hospital,NMH,Urine,Staphylococcus aureus,Vancomycin,100

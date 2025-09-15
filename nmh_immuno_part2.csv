@@ -1,0 +1,10 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Northwestern Memorial Hospital,NMH,Immunocompromised Host,Escherichia coli,Ampicillin,27
+Northwestern Memorial Hospital,NMH,Immunocompromised Host,Escherichia coli,Ceftriaxone,71
+Northwestern Memorial Hospital,NMH,Immunocompromised Host,Escherichia coli,Ciprofloxacin,50
+Northwestern Memorial Hospital,NMH,Immunocompromised Host,Escherichia coli,Tobramycin,84
+Northwestern Memorial Hospital,NMH,Immunocompromised Host,Klebsiella pneumoniae,Ceftriaxone,57
+Northwestern Memorial Hospital,NMH,Immunocompromised Host,Klebsiella pneumoniae,Ciprofloxacin,55
+Northwestern Memorial Hospital,NMH,Immunocompromised Host,Klebsiella pneumoniae,Tobramycin,77
+Northwestern Memorial Hospital,NMH,Immunocompromised Host,Pseudomonas aeruginosa,Cefepime,78
+Northwestern Memorial Hospital,NMH,Immunocompromised Host,Pseudomonas aeruginosa,Tobramycin,90

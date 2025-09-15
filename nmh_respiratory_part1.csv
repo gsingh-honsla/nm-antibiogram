@@ -1,0 +1,5 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Northwestern Memorial Hospital,NMH,Respiratory,Staphylococcus aureus,Clindamycin,64
+Northwestern Memorial Hospital,NMH,Respiratory,Staphylococcus aureus,Vancomycin,100
+Northwestern Memorial Hospital,NMH,Respiratory,Methicillin-resistant Staphylococcus aureus,Clindamycin,85
+Northwestern Memorial Hospital,NMH,Respiratory,Methicillin-resistant Staphylococcus aureus,Vancomycin,100

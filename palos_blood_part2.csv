@@ -1,0 +1,8 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Palos Hospital,Palos Hospital,Blood,Escherichia coli,Ampicillin,48
+Palos Hospital,Palos Hospital,Blood,Escherichia coli,Ceftriaxone,83
+Palos Hospital,Palos Hospital,Blood,Escherichia coli,Ciprofloxacin,63
+Palos Hospital,Palos Hospital,Blood,Escherichia coli,Tobramycin,84
+Palos Hospital,Palos Hospital,Blood,Klebsiella pneumoniae,Ceftriaxone,83
+Palos Hospital,Palos Hospital,Blood,Klebsiella pneumoniae,Ciprofloxacin,79
+Palos Hospital,Palos Hospital,Blood,Klebsiella pneumoniae,Tobramycin,85

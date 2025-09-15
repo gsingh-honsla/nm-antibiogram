@@ -1,0 +1,9 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Palos Hospital,Palos Hospital,Urine,Enterococcus faecalis,Ampicillin,99
+Palos Hospital,Palos Hospital,Urine,Enterococcus faecalis,Vancomycin,98
+Palos Hospital,Palos Hospital,Urine,Enterococcus faecium,Ampicillin,9
+Palos Hospital,Palos Hospital,Urine,Enterococcus faecium,Vancomycin,33
+Palos Hospital,Palos Hospital,Urine,Vancomycin-Resistant Enterococci,Ampicillin,3
+Palos Hospital,Palos Hospital,Urine,Vancomycin-Resistant Enterococci,Vancomycin,61
+Palos Hospital,Palos Hospital,Urine,Staphylococcus aureus,Clindamycin,47
+Palos Hospital,Palos Hospital,Urine,Staphylococcus aureus,Vancomycin,100

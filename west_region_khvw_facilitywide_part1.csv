@@ -1,0 +1,9 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+West Region,Kishwaukee/Valley West Hospitals (KH/VW),Facility-Wide,Enterococcus faecalis,Ampicillin,100
+West Region,Kishwaukee/Valley West Hospitals (KH/VW),Facility-Wide,Enterococcus faecalis,Vancomycin,99
+West Region,Kishwaukee/Valley West Hospitals (KH/VW),Facility-Wide,Enterococcus faecium,Ampicillin,18
+West Region,Kishwaukee/Valley West Hospitals (KH/VW),Facility-Wide,Enterococcus faecium,Vancomycin,42
+West Region,Kishwaukee/Valley West Hospitals (KH/VW),Facility-Wide,Staphylococcus aureus,Clindamycin,61
+West Region,Kishwaukee/Valley West Hospitals (KH/VW),Facility-Wide,Staphylococcus aureus,Vancomycin,100
+West Region,Kishwaukee/Valley West Hospitals (KH/VW),Facility-Wide,Methicillin-resistant Staphylococcus aureus,Clindamycin,46
+West Region,Kishwaukee/Valley West Hospitals (KH/VW),Facility-Wide,Methicillin-resistant Staphylococcus aureus,Vancomycin,100

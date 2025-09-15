@@ -1,0 +1,10 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Palos Hospital,Palos Hospital,Facility-Wide,Escherichia coli,Ampicillin,50
+Palos Hospital,Palos Hospital,Facility-Wide,Escherichia coli,Ceftriaxone,88
+Palos Hospital,Palos Hospital,Facility-Wide,Escherichia coli,Ciprofloxacin,73
+Palos Hospital,Palos Hospital,Facility-Wide,Escherichia coli,Tobramycin,90
+Palos Hospital,Palos Hospital,Facility-Wide,Klebsiella pneumoniae,Ceftriaxone,78
+Palos Hospital,Palos Hospital,Facility-Wide,Klebsiella pneumoniae,Ciprofloxacin,78
+Palos Hospital,Palos Hospital,Facility-Wide,Klebsiella pneumoniae,Tobramycin,87
+Palos Hospital,Palos Hospital,Facility-Wide,Pseudomonas aeruginosa,Cefepime,82
+Palos Hospital,Palos Hospital,Facility-Wide,Pseudomonas aeruginosa,Tobramycin,95
