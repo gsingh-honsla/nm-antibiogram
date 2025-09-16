@@ -1,8 +1,0 @@
-Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Escherichia coli,Ampicillin,56
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Escherichia coli,Ceftriaxone,88
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Escherichia coli,Ciprofloxacin,76
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Escherichia coli,Tobramycin,78
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Klebsiella pneumoniae,Ceftriaxone,94
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Klebsiella pneumoniae,Ciprofloxacin,96
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Klebsiella pneumoniae,Tobramycin,85

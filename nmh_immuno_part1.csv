@@ -1,9 +1,0 @@
-Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
-Northwestern Memorial Hospital,NMH,Immunocompromised Host,Enterococcus faecalis,Ampicillin,100
-Northwestern Memorial Hospital,NMH,Immunocompromised Host,Enterococcus faecalis,Vancomycin,98
-Northwestern Memorial Hospital,NMH,Immunocompromised Host,Enterococcus faecium,Ampicillin,7
-Northwestern Memorial Hospital,NMH,Immunocompromised Host,Enterococcus faecium,Vancomycin,30
-Northwestern Memorial Hospital,NMH,Immunocompromised Host,Staphylococcus aureus,Clindamycin,42
-Northwestern Memorial Hospital,NMH,Immunocompromised Host,Staphylococcus aureus,Vancomycin,100
-Northwestern Memorial Hospital,NMH,Immunocompromised Host,Methicillin-resistant Staphylococcus aureus,Clindamycin,80
-Northwestern Memorial Hospital,NMH,Immunocompromised Host,Methicillin-resistant Staphylococcus aureus,Vancomycin,100

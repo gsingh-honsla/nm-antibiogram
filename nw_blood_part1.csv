@@ -1,7 +1,0 @@
-Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Enterococcus species,Ampicillin,94
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Enterococcus species,Vancomycin,97
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Staphylococcus aureus,Clindamycin,63
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Staphylococcus aureus,Vancomycin,100
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Methicillin-resistant Staphylococcus aureus,Clindamycin,38
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Blood,Methicillin-resistant Staphylococcus aureus,Vancomycin,97

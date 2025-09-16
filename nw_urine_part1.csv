@@ -1,9 +1,0 @@
-Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Urine,Enterococcus faecalis,Ampicillin,98
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Urine,Enterococcus faecalis,Vancomycin,97
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Urine,Enterococcus faecium,Ampicillin,14
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Urine,Enterococcus faecium,Vancomycin,43
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Urine,Staphylococcus aureus,Clindamycin,64
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Urine,Staphylococcus aureus,Vancomycin,100
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Urine,Methicillin-resistant Staphylococcus aureus,Clindamycin,81
-Northwest Region,Huntley/McHenry/Woodstock Hospitals,Urine,Methicillin-resistant Staphylococcus aureus,Vancomycin,100
