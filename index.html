@@ -319,11 +319,40 @@ input[type="search"]:focus {
   align-items: center;
   padding: 1.05rem 1.3rem;
   cursor: pointer;
-  gap: 1.2rem;
+  gap: 1rem;
 }
 
 #antibiotics summary::-webkit-details-marker {
   display: none;
+}
+
+#antibiotics .summary-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+#antibiotics .meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+#antibiotics .badge-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+#antibiotics .info-tag {
+  background: rgba(240, 82, 82, 0.18);
+  color: #b91c1c;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 #antibiotics details.has-info .drug {
@@ -378,7 +407,6 @@ input[type="search"]:focus {
   color: var(--accent-strong);
   border-radius: 999px;
   padding: 0.2rem 0.6rem;
-  margin-left: 0.45rem;
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -388,6 +416,17 @@ input[type="search"]:focus {
   padding: 0.85rem 1.3rem 1.1rem;
   border-top: 1px solid rgba(15, 34, 52, 0.08);
   background: rgba(247, 250, 252, 0.8);
+}
+
+#antibiotics .drawer .info-section + .info-section {
+  margin-top: 0.95rem;
+}
+
+#antibiotics .drawer-heading {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent-strong);
 }
 
 #antibiotics .drawer ul {
@@ -671,12 +710,15 @@ const CONTEXT_PRIORITY=[
   'Immunocompromised Host'
 ];
 
+const CONTRA_FILE='contraindications.md';
+
 const LEGEND={
   hint:'<strong>For severe syndromes aim for ≥90% when feasible; ≥80% may be acceptable for lower-risk infections.</strong> Use patient-level cultures and ID consult for definitive therapy. Data adapted from NM Antimicrobial and Diagnostic Stewardship Program based on <a href="https://adsp.nm.org/antibiogram-resources.html" target="_blank" rel="noopener noreferrer">2024 antibiograms</a>.',
   badges:{}
 };
 
 let DATA=null;
+let CONTRAINDICATIONS=new Map();
 let current={site:null,ctx:null,org:null};
 const qs=s=>document.querySelector(s);
 const siteSel=qs('#site'),ctxDiv=qs('#context'),orgSearch=qs('#organismSearch'),orgList=qs('#organisms');
@@ -687,7 +729,11 @@ let step=0;
 loadData();
 
 function loadData(){
-  Promise.all(CSV_FILES.map(loadCsv)).then(parts=>{
+  Promise.all([
+    Promise.all(CSV_FILES.map(loadCsv)),
+    loadContraindications()
+  ]).then(([parts,contra])=>{
+    CONTRAINDICATIONS=contra;
     const rows=parts.flat();
     DATA={legend:LEGEND,sites:buildSites(rows)};
     init();
@@ -703,6 +749,16 @@ function loadCsv(path){
     if(!resp.ok) throw new Error(`Failed to load ${path}`);
     return resp.text();
   }).then(parseCsv);
+}
+
+function loadContraindications(){
+  return fetch(CONTRA_FILE).then(resp=>{
+    if(!resp.ok) throw new Error(`Failed to load ${CONTRA_FILE}`);
+    return resp.text();
+  }).then(parseContraindications).catch(err=>{
+    console.warn('Contraindications unavailable',err);
+    return new Map();
+  });
 }
 
 function parseCsv(text){
@@ -744,6 +800,36 @@ function parseCsv(text){
   return records;
 }
 
+function parseContraindications(text){
+  const map=new Map();
+  text.split('\n').forEach(line=>{
+    const trimmed=line.trim();
+    if(!trimmed.startsWith('|'))return;
+    if(/^\|\s*-{3,}/.test(trimmed))return;
+    const cells=trimmed.split('|').slice(1,-1).map(cell=>cell.trim());
+    if(cells.length<3)return;
+    const [drugCell,contraCell,interactionCell]=cells;
+    const cleanDrug=drugCell.replace(/\*/g,'').trim();
+    if(!cleanDrug||cleanDrug.toLowerCase()==='antibiotic')return;
+    const key=canonicalDrugName(cleanDrug);
+    if(!key)return;
+    map.set(key,{
+      contraindications:parseMarkdownList(contraCell),
+      interactions:parseMarkdownList(interactionCell)
+    });
+  });
+  return map;
+}
+
+function parseMarkdownList(cell){
+  if(!cell)return [];
+  return cell.split(/-\s+/).map(item=>item.trim()).filter(Boolean);
+}
+
+function canonicalDrugName(name){
+  return (name||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+}
+
 function buildSites(rows){
   const siteMap=new Map();
   rows.forEach(row=>{
@@ -777,12 +863,15 @@ function buildSites(rows){
       });
     }
     const orgEntry=ctxEntry.organisms.get(organism);
+    const contraEntry=CONTRAINDICATIONS.get(canonicalDrugName(antibiotic));
     orgEntry.antibiotics.push({
       drug:antibiotic,
       pctS:pct,
       notes:[],
       cautions:[],
-      flags:[]
+      flags:[],
+      contraindications:contraEntry?[...contraEntry.contraindications]:[],
+      interactions:contraEntry?[...contraEntry.interactions]:[]
     });
   });
 
@@ -878,6 +967,31 @@ function selectOrganism(id){
   showStep(3);
 }
 
+function renderInfoSection(title,items){
+  const list=Array.isArray(items)?items.map(item=>typeof item==='string'?item.trim():item).filter(Boolean):[];
+  if(!list.length)return '';
+  const entries=list.map(item=>`<li>${formatListItem(item)}</li>`).join('');
+  return `<div class="info-section"><h3 class="drawer-heading">${title}</h3><ul>${entries}</ul></div>`;
+}
+
+function escapeHtml(str){
+  const map={
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  };
+  return String(str??'').replace(/[&<>"']/g,ch=>map[ch]);
+}
+
+function formatListItem(content){
+  const normalized=typeof content==='string'?content.trim():String(content??'');
+  if(!normalized)return '';
+  const escaped=escapeHtml(normalized);
+  return escaped.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+}
+
 function renderAntibiotics(){
   antList.innerHTML='';
   let count=0;
@@ -886,13 +1000,26 @@ function renderAntibiotics(){
     if(filter80.checked&&ab.pctS<80)return;
     const band=ab.pctS>=80?'green':ab.pctS>=70?'yellow':'red';
     const badges=(ab.flags||[]).map(f=>`<span class="badge">${DATA.legend.badges[f]||f}</span>`).join('');
-    const notes=ab.notes.map(n=>`<li>${n}</li>`).join('');
-    const caut=ab.cautions.map(c=>`<li>${c}</li>`).join('');
-    const notesHtml=notes?`<ul>${notes}</ul>`:'';
-    const cautHtml=caut?`<ul>${caut}</ul>`:'';
-    const drawer=notesHtml||cautHtml?`<div class="drawer">${notesHtml}${cautHtml}</div>`:'';
-    const cls=drawer?' class="has-info"':'';
-    antList.insertAdjacentHTML('beforeend',`<li><details${cls}><summary><span class="drug">${ab.drug}</span><span>${badges}</span><span class="pct"><span class="chip band-${band}" aria-hidden="true"></span>${ab.pctS}%</span></summary>${drawer}</details></li>`);
+    const sections=[];
+    const contraindicationsSection=renderInfoSection('Contraindications',ab.contraindications);
+    if(contraindicationsSection)sections.push(contraindicationsSection);
+    const interactionsSection=renderInfoSection('Major interactions',ab.interactions);
+    if(interactionsSection)sections.push(interactionsSection);
+    const notesSection=renderInfoSection('Notes',ab.notes);
+    if(notesSection)sections.push(notesSection);
+    const cautionsSection=renderInfoSection('Cautions',ab.cautions);
+    if(cautionsSection)sections.push(cautionsSection);
+    const hasInfo=sections.length>0;
+    const infoLabel=ab.contraindications&&ab.contraindications.length?'Contraindications':hasInfo?'Details':'';
+    const infoTag=infoLabel?`<span class="info-tag">${infoLabel}</span>`:'';
+    const badgeGroup=badges?`<span class="badge-group">${badges}</span>`:'';
+    const metaParts=[infoTag,badgeGroup].filter(Boolean);
+    const metaHtml=metaParts.length?`<span class="meta">${metaParts.join('')}</span>`:'';
+    const pctHtml=`<span class="pct"><span class="chip band-${band}" aria-hidden="true"></span>${ab.pctS}%</span>`;
+    const summaryRight=`<span class="summary-right">${metaHtml}${pctHtml}</span>`;
+    const drawer=hasInfo?`<div class="drawer">${sections.join('')}</div>`:'';
+    const cls=hasInfo?' class="has-info"':'';
+    antList.insertAdjacentHTML('beforeend',`<li><details${cls}><summary><span class="drug">${escapeHtml(ab.drug)}</span>${summaryRight}</summary>${drawer}</details></li>`);
     count++;
   });
   noData.hidden=count>0;
