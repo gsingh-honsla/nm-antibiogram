@@ -1,9 +1,0 @@
-Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
-Northwestern Memorial Hospital,NMH,Blood,Enterococcus faecalis,Ampicillin,100
-Northwestern Memorial Hospital,NMH,Blood,Enterococcus faecalis,Vancomycin,100
-Northwestern Memorial Hospital,NMH,Blood,Enterococcus faecium,Ampicillin,15
-Northwestern Memorial Hospital,NMH,Blood,Enterococcus faecium,Vancomycin,37
-Northwestern Memorial Hospital,NMH,Blood,Staphylococcus aureus,Clindamycin,69
-Northwestern Memorial Hospital,NMH,Blood,Staphylococcus aureus,Vancomycin,100
-Northwestern Memorial Hospital,NMH,Blood,Methicillin-resistant Staphylococcus aureus,Clindamycin,86
-Northwestern Memorial Hospital,NMH,Blood,Methicillin-resistant Staphylococcus aureus,Vancomycin,100

@@ -1,9 +1,0 @@
-Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
-West Region,Delnor Community Hospital (DCH),Urine,Enterococcus faecalis,Ampicillin,100
-West Region,Delnor Community Hospital (DCH),Urine,Enterococcus faecalis,Vancomycin,99
-West Region,Delnor Community Hospital (DCH),Urine,Enterococcus faecium,Ampicillin,18
-West Region,Delnor Community Hospital (DCH),Urine,Enterococcus faecium,Vancomycin,41
-West Region,Delnor Community Hospital (DCH),Urine,Staphylococcus aureus,Clindamycin,55
-West Region,Delnor Community Hospital (DCH),Urine,Staphylococcus aureus,Vancomycin,100
-West Region,Delnor Community Hospital (DCH),Urine,Methicillin-resistant Staphylococcus aureus,Daptomycin,100
-West Region,Delnor Community Hospital (DCH),Urine,Methicillin-resistant Staphylococcus aureus,Linezolid,100
