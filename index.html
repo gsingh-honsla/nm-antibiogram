@@ -37,7 +37,7 @@ body {
   font-size: 17px;
   background: radial-gradient(circle at 10% 10%, rgba(255, 241, 223, 0.75), transparent 55%),
     radial-gradient(circle at 80% 0%, rgba(233, 213, 255, 0.9), transparent 50%),
-    linear-gradient(135deg, #f6f7fb 0%, #fdf6ef 100%);
+    linear-gradient(to right, #f6f7fb 0%, #fdf6ef 100%);
   color: var(--ink);
   min-height: 100vh;
 }
@@ -88,7 +88,7 @@ header {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.92), rgba(91, 33, 182, 0.85));
+  background: linear-gradient(135deg, rgba(91, 33, 182, 0.85), rgba(168, 85, 247, 0.92));
   color: #fff;
   box-shadow: 0 12px 24px rgba(15, 49, 69, 0.28);
 }
@@ -104,43 +104,6 @@ h1 {
   font-weight: 700;
   letter-spacing: -0.02em;
   margin: 0;
-}
-
-header .subtitle {
-  margin: 0;
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 500;
-}
-
-#backBtn {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #fff;
-  font: inherit;
-  cursor: pointer;
-  padding: 0.55rem 0.9rem;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-}
-
-#backBtn span[aria-hidden="true"] {
-  font-size: 1rem;
-}
-
-#backBtn .label {
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-#backBtn:hover,
-#backBtn:focus {
-  background: rgba(255, 255, 255, 0.22);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
 }
 
 main {
@@ -509,11 +472,6 @@ footer .hint {
   color: var(--muted);
 }
 
-footer .disclaimer {
-  font-weight: 700;
-  margin: 0;
-}
-
 footer .credit {
   font-size: 0.9rem;
   color: rgba(17, 32, 52, 0.6);
@@ -538,10 +496,6 @@ footer .credit {
     align-items: flex-start;
     padding: 1.2rem 1.4rem 1.5rem;
     gap: 0.75rem;
-  }
-
-  #backBtn {
-    align-self: flex-start;
   }
 
   main {
@@ -600,10 +554,8 @@ footer .credit {
 </head>
 <body>
 <header>
-<button id="backBtn" hidden><span aria-hidden="true">&#8592;</span><span class="label">Back</span></button>
 <div class="title">
 <h1><a href="/" id="homeLink">Digital NM Antibiogram</a></h1>
-<p class="subtitle">A calming companion for evidence-guided antimicrobial decisions</p>
 </div>
 </header>
 <main>
@@ -630,13 +582,12 @@ footer .credit {
 </main>
 <footer>
 <div class="bands"><strong>Color key:</strong>
-<span><span class="chip band-green"></span>≥80%</span>
-<span><span class="chip band-yellow"></span>70–79%</span>
 <span><span class="chip band-red"></span>≤69%</span>
+<span><span class="chip band-yellow"></span>70–79%</span>
+<span><span class="chip band-green"></span>≥80%</span>
 </div>
 <p class="hint"></p>
-<p class="disclaimer">Use patient-level cultures and ID consult for definitive therapy.</p>
-<p class="credit">Made with ❤️ for the NM community.</p>
+<p class="credit">Made with ❤️ for the Northwestern Medicine community.</p>
 </footer>
 <script>
 const CSV_FILES=[
@@ -683,6 +634,13 @@ const CSV_FILES=[
   'palos_facilitywide_part2.csv',
   'palos_urine_part1.csv',
   'palos_urine_part2.csv',
+  'West_Region_-_CDH_Facility-Wide__Part_1_.csv',
+  'West_Region_-_CDH_Facility-Wide__Part_2_.csv',
+  'West_Region_-_CDH_Facility-Wide__Part_3_.csv',
+  'West_Region_-_CDH_Urine__Part_1_.csv',
+  'West_Region_-_CDH_Urine__Part_2_.csv',
+  'West_Region_-_DCH_Facility-Wide__Part_1_.csv',
+  'West_Region_-_DCH_Facility-Wide__Part_2_.csv',
   'west_region_dch_urinary_part1.csv',
   'west_region_dch_urinary_part2.csv',
   'west_region_khvw_facilitywide_part1.csv',
@@ -714,7 +672,7 @@ const CONTEXT_PRIORITY=[
 ];
 
 const LEGEND={
-  hint:'For severe syndromes aim for ≥90% when feasible; ≥80% may be acceptable for lower-risk infections.',
+  hint:'<strong>For severe syndromes aim for ≥90% when feasible; ≥80% may be acceptable for lower-risk infections.</strong> Use patient-level cultures and ID consult for definitive therapy. Data adapted from NM Antimicrobial and Diagnostic Stewardship Program based on <a href="https://adsp.nm.org/antibiogram-resources.html" target="_blank" rel="noopener noreferrer">2024 antibiograms</a>.',
   badges:{}
 };
 
@@ -722,7 +680,7 @@ let DATA=null;
 let current={site:null,ctx:null,org:null};
 const qs=s=>document.querySelector(s);
 const siteSel=qs('#site'),ctxDiv=qs('#context'),orgSearch=qs('#organismSearch'),orgList=qs('#organisms');
-const results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics'),filter80=qs('#filter80 input'),flag=qs('#contextFlag'),noData=qs('#noData'),hint=qs('.hint'),backBtn=qs('#backBtn'),homeLink=qs('#homeLink');
+const results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics'),filter80=qs('#filter80 input'),flag=qs('#contextFlag'),noData=qs('#noData'),hint=qs('.hint'),homeLink=qs('#homeLink');
 const views=['siteView','contextView','organismView','results'];
 let step=0;
 
@@ -864,12 +822,11 @@ function slugify(str){
 }
 
 function init(){
-  hint.textContent=DATA.legend.hint;
+  hint.innerHTML=DATA.legend.hint;
   populateSites();
   siteSel.addEventListener('change',()=>{renderContexts(siteSel.value);showStep(1);});
   orgSearch.addEventListener('input',filterOrganisms);
   filter80.addEventListener('change',renderAntibiotics);
-  backBtn.addEventListener('click',()=>{if(step>0)showStep(step-1);});
   homeLink.addEventListener('click',e=>{e.preventDefault();showStep(0);});
   showStep(0);
 }
@@ -944,7 +901,6 @@ function renderAntibiotics(){
 function showStep(n){
   step=Math.max(0,Math.min(views.length-1,n));
   views.forEach((v,i)=>{qs('#'+v).hidden=i!==step;});
-  backBtn.hidden=step===0;
 }
 </script>
 </body>
