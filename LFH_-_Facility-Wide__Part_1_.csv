@@ -1,0 +1,13 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+Lake Forest Hospital,LFH,Facility-Wide,Enterococcus faecalis,Ampicillin,100
+Lake Forest Hospital,LFH,Facility-Wide,Enterococcus faecalis,Vancomycin,99
+Lake Forest Hospital,LFH,Facility-Wide,Enterococcus faecium,Ampicillin,38
+Lake Forest Hospital,LFH,Facility-Wide,Enterococcus faecium,Vancomycin,56
+Lake Forest Hospital,LFH,Facility-Wide,Staphylococcus coagulase negative,Clindamycin,35
+Lake Forest Hospital,LFH,Facility-Wide,Staphylococcus coagulase negative,Vancomycin,100
+Lake Forest Hospital,LFH,Facility-Wide,Staphylococcus aureus,Clindamycin,63
+Lake Forest Hospital,LFH,Facility-Wide,Staphylococcus aureus,Vancomycin,100
+Lake Forest Hospital,LFH,Facility-Wide,Methicillin-resistant Staphylococcus aureus,Clindamycin,72
+Lake Forest Hospital,LFH,Facility-Wide,Methicillin-resistant Staphylococcus aureus,Vancomycin,100
+Lake Forest Hospital,LFH,Facility-Wide,Viridans Group Streptococci,Clindamycin,81
+Lake Forest Hospital,LFH,Facility-Wide,Viridans Group Streptococci,Vancomycin,100
