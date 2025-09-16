@@ -1,0 +1,7 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+West Region,Central DuPage Hospital (CDH),Facility-Wide,Enterococcus faecalis,Ampicillin,99
+West Region,Central DuPage Hospital (CDH),Facility-Wide,Enterococcus faecalis,Vancomycin,98
+West Region,Central DuPage Hospital (CDH),Facility-Wide,Enterococcus faecium,Ampicillin,35
+West Region,Central DuPage Hospital (CDH),Facility-Wide,Enterococcus faecium,Vancomycin,68
+West Region,Central DuPage Hospital (CDH),Facility-Wide,Staphylococcus aureus,Clindamycin,68
+West Region,Central DuPage Hospital (CDH),Facility-Wide,Staphylococcus aureus,Vancomycin,100

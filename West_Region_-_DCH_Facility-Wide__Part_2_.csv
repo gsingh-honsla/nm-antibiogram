@@ -1,0 +1,10 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+West Region,Delnor Community Hospital (DCH),Facility-Wide,Escherichia coli,Ampicillin,45
+West Region,Delnor Community Hospital (DCH),Facility-Wide,Escherichia coli,Ceftriaxone,83
+West Region,Delnor Community Hospital (DCH),Facility-Wide,Escherichia coli,Ciprofloxacin,65
+West Region,Delnor Community Hospital (DCH),Facility-Wide,Escherichia coli,Gentamicin,89
+West Region,Delnor Community Hospital (DCH),Facility-Wide,Escherichia coli,Tobramycin,91
+West Region,Delnor Community Hospital (DCH),Facility-Wide,Klebsiella pneumoniae,Ceftriaxone,86
+West Region,Delnor Community Hospital (DCH),Facility-Wide,Klebsiella pneumoniae,Ciprofloxacin,81
+West Region,Delnor Community Hospital (DCH),Facility-Wide,Klebsiella pneumoniae,Gentamicin,91
+West Region,Delnor Community Hospital (DCH),Facility-Wide,Klebsiella pneumoniae,Tobramycin,91

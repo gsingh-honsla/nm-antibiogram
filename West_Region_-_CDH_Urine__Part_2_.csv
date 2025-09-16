@@ -1,0 +1,10 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+West Region,Central DuPage Hospital (CDH),Urine,Escherichia coli,Ampicillin,45
+West Region,Central DuPage Hospital (CDH),Urine,Escherichia coli,Ceftriaxone,85
+West Region,Central DuPage Hospital (CDH),Urine,Escherichia coli,Ciprofloxacin,69
+West Region,Central DuPage Hospital (CDH),Urine,Escherichia coli,Nitrofurantoin,96
+West Region,Central DuPage Hospital (CDH),Urine,Escherichia coli,Tobramycin,93
+West Region,Central DuPage Hospital (CDH),Urine,Klebsiella pneumoniae,Ceftriaxone,88
+West Region,Central DuPage Hospital (CDH),Urine,Klebsiella pneumoniae,Ciprofloxacin,77
+West Region,Central DuPage Hospital (CDH),Urine,Klebsiella pneumoniae,Nitrofurantoin,34
+West Region,Central DuPage Hospital (CDH),Urine,Klebsiella pneumoniae,Tobramycin,93

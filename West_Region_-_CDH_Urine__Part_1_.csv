@@ -1,0 +1,9 @@
+Region,Site,Specimen_Type,Organism,Antibiotic,Susceptibility_Percent
+West Region,Central DuPage Hospital (CDH),Urine,Enterococcus faecalis,Ampicillin,100
+West Region,Central DuPage Hospital (CDH),Urine,Enterococcus faecalis,Vancomycin,99
+West Region,Central DuPage Hospital (CDH),Urine,Enterococcus faecium,Ampicillin,16
+West Region,Central DuPage Hospital (CDH),Urine,Enterococcus faecium,Vancomycin,44
+West Region,Central DuPage Hospital (CDH),Urine,Staphylococcus aureus,Clindamycin,59
+West Region,Central DuPage Hospital (CDH),Urine,Staphylococcus aureus,Vancomycin,100
+West Region,Central DuPage Hospital (CDH),Urine,Methicillin-resistant Staphylococcus aureus,Daptomycin,100
+West Region,Central DuPage Hospital (CDH),Urine,Methicillin-resistant Staphylococcus aureus,Linezolid,100
