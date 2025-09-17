@@ -1,0 +1,170 @@
+[
+  {
+    "path": "data/2024/cdh/facility-wide.md",
+    "site_id": "cdh",
+    "context": "Facility-Wide",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/cdh/urine.md",
+    "site_id": "cdh",
+    "context": "Urine",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/dch/facility-wide.md",
+    "site_id": "dch",
+    "context": "Facility-Wide",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/dch/urine.md",
+    "site_id": "dch",
+    "context": "Urine",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/khvw/facility-wide.md",
+    "site_id": "khvw",
+    "context": "Facility-Wide",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/khvw/urine.md",
+    "site_id": "khvw",
+    "context": "Urine",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/lfh/blood.md",
+    "site_id": "lfh",
+    "context": "Blood",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/lfh/ed.md",
+    "site_id": "lfh",
+    "context": "ED",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/lfh/facility-wide.md",
+    "site_id": "lfh",
+    "context": "Facility-Wide",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/lfh/urine.md",
+    "site_id": "lfh",
+    "context": "Urine",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/marianjoy/facility-wide.md",
+    "site_id": "marianjoy",
+    "context": "Facility-Wide",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/marianjoy/urine.md",
+    "site_id": "marianjoy",
+    "context": "Urine",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/nmh/blood.md",
+    "site_id": "nmh",
+    "context": "Blood",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/nmh/ed.md",
+    "site_id": "nmh",
+    "context": "ED",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/nmh/facility-wide.md",
+    "site_id": "nmh",
+    "context": "Facility-Wide",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/nmh/immunocompromised-host.md",
+    "site_id": "nmh",
+    "context": "Immunocompromised Host",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/nmh/micu.md",
+    "site_id": "nmh",
+    "context": "MICU",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/nmh/other-icu.md",
+    "site_id": "nmh",
+    "context": "Other ICU",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/nmh/respiratory.md",
+    "site_id": "nmh",
+    "context": "Respiratory",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/nmh/urine.md",
+    "site_id": "nmh",
+    "context": "Urine",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/northwest-region/blood.md",
+    "site_id": "northwest-region",
+    "context": "Blood",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/northwest-region/ed.md",
+    "site_id": "northwest-region",
+    "context": "ED",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/northwest-region/facility-wide.md",
+    "site_id": "northwest-region",
+    "context": "Facility-Wide",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/northwest-region/urine.md",
+    "site_id": "northwest-region",
+    "context": "Urine",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/palos/blood.md",
+    "site_id": "palos",
+    "context": "Blood",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/palos/ed.md",
+    "site_id": "palos",
+    "context": "ED",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/palos/facility-wide.md",
+    "site_id": "palos",
+    "context": "Facility-Wide",
+    "year": 2024
+  },
+  {
+    "path": "data/2024/palos/urine.md",
+    "site_id": "palos",
+    "context": "Urine",
+    "year": 2024
+  }
+]

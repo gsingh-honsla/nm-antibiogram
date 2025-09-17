@@ -629,64 +629,7 @@ footer .credit {
 <p class="credit">Made with ❤️ for the Northwestern Medicine community.</p>
 </footer>
 <script>
-const CSV_FILES=[
-  'lfh_blood_part1.csv',
-  'lfh_blood_part2.csv',
-  'lfh_ed_part1.csv',
-  'lfh_ed_part2.csv',
-  'lfh_urine_part1.csv',
-  'lfh_urine_part2.csv',
-  'LFH_-_Facility-Wide__Part_1_.csv',
-  'LFH_-_Facility-Wide__Part_2_.csv',
-  'marianjoy_facilitywide_part1.csv',
-  'marianjoy_facilitywide_part2.csv',
-  'marianjoy_urine_part1.csv',
-  'nmh_blood_part1.csv',
-  'nmh_blood_part2.csv',
-  'nmh_ed_part1.csv',
-  'nmh_ed_part2.csv',
-  'nmh_facilitywide_part1.csv',
-  'nmh_facilitywide_part2.csv',
-  'nmh_immuno_part1.csv',
-  'nmh_immuno_part2.csv',
-  'nmh_micu_part1.csv',
-  'nmh_micu_part2.csv',
-  'nmh_other_icu_part1.csv',
-  'nmh_other_icu_part2.csv',
-  'nmh_respiratory_part1.csv',
-  'nmh_respiratory_part2.csv',
-  'nmh_urine_part1.csv',
-  'nmh_urine_part2.csv',
-  'nw_blood_part1.csv',
-  'nw_blood_part2.csv',
-  'nw_ed_part1.csv',
-  'nw_ed_part2.csv',
-  'nw_facilitywide_part1.csv',
-  'nw_facilitywide_part2.csv',
-  'nw_urine_part1.csv',
-  'nw_urine_part2.csv',
-  'palos_blood_part1.csv',
-  'palos_blood_part2.csv',
-  'palos_ed_part1.csv',
-  'palos_ed_part2.csv',
-  'palos_facilitywide_part1.csv',
-  'palos_facilitywide_part2.csv',
-  'palos_urine_part1.csv',
-  'palos_urine_part2.csv',
-  'West_Region_-_CDH_Facility-Wide__Part_1_.csv',
-  'West_Region_-_CDH_Facility-Wide__Part_2_.csv',
-  'West_Region_-_CDH_Facility-Wide__Part_3_.csv',
-  'West_Region_-_CDH_Urine__Part_1_.csv',
-  'West_Region_-_CDH_Urine__Part_2_.csv',
-  'West_Region_-_DCH_Facility-Wide__Part_1_.csv',
-  'West_Region_-_DCH_Facility-Wide__Part_2_.csv',
-  'west_region_dch_urinary_part1.csv',
-  'west_region_dch_urinary_part2.csv',
-  'west_region_khvw_facilitywide_part1.csv',
-  'west_region_khvw_facilitywide_part2.csv',
-  'west_region_khvw_urinary_part1.csv',
-  'west_region_khvw_urinary_part2.csv'
-];
+const DATA_INDEX='data/index.json';
 
 const SPECIMEN_LABELS={
   'Blood':'Blood',
@@ -730,12 +673,11 @@ loadData();
 
 function loadData(){
   Promise.all([
-    Promise.all(CSV_FILES.map(loadCsv)),
+    loadMarkdownData(),
     loadContraindications()
-  ]).then(([parts,contra])=>{
+  ]).then(([entries,contra])=>{
     CONTRAINDICATIONS=contra;
-    const rows=parts.flat();
-    DATA={legend:LEGEND,sites:buildSites(rows)};
+    DATA={legend:LEGEND,sites:buildSites(entries)};
     init();
   }).catch(err=>{
     console.error('Failed to load data',err);
@@ -744,11 +686,21 @@ function loadData(){
   });
 }
 
-function loadCsv(path){
-  return fetch(path).then(resp=>{
-    if(!resp.ok) throw new Error(`Failed to load ${path}`);
-    return resp.text();
-  }).then(parseCsv);
+function loadMarkdownData(){
+  return fetch(DATA_INDEX).then(resp=>{
+    if(!resp.ok) throw new Error(`Failed to load ${DATA_INDEX}`);
+    return resp.json();
+  }).then(list=>{
+    if(!Array.isArray(list)) throw new Error('Invalid data index');
+    return Promise.all(list.map(entry=>{
+      const path=typeof entry==='string'?entry:entry.path;
+      if(!path) throw new Error('Invalid data entry');
+      return fetch(path).then(resp=>{
+        if(!resp.ok) throw new Error(`Failed to load ${path}`);
+        return resp.text();
+      }).then(text=>parseMarkdown(text,path));
+    }));
+  });
 }
 
 function loadContraindications(){
@@ -759,45 +711,6 @@ function loadContraindications(){
     console.warn('Contraindications unavailable',err);
     return new Map();
   });
-}
-
-function parseCsv(text){
-  const rows=[];
-  let field='',row=[],inQuotes=false;
-  for(let i=0;i<text.length;i++){
-    const char=text[i];
-    if(inQuotes){
-      if(char==='"'){
-        if(text[i+1]==='"'){field+='"';i++;}
-        else{inQuotes=false;}
-      }else{field+=char;}
-    }else{
-      if(char==='"'){inQuotes=true;}
-      else if(char===','){row.push(field);field='';}
-      else if(char==='\r'){continue;}
-      else if(char==='\n'){
-        row.push(field);
-        if(row.some(cell=>cell.trim()!==''))rows.push(row);
-        row=[];
-        field='';
-      }else{field+=char;}
-    }
-  }
-  if(field.length||row.length){
-    row.push(field);
-    if(row.some(cell=>cell.trim()!==''))rows.push(row);
-  }
-  if(!rows.length)return [];
-  const headers=rows[0].map(h=>h.trim());
-  const records=[];
-  for(let i=1;i<rows.length;i++){
-    const line=rows[i];
-    const record={};
-    headers.forEach((header,idx)=>{record[header]=(line[idx]??'').trim();});
-    if(Object.values(record).every(v=>v===''))continue;
-    records.push(record);
-  }
-  return records;
 }
 
 function parseContraindications(text){
@@ -830,75 +743,145 @@ function canonicalDrugName(name){
   return (name||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 }
 
-function buildSites(rows){
+function buildSiteDisplay(meta){
+  const region=(meta.region||'').trim();
+  const site=(meta.site||'').trim();
+  if(region&&site&&region!==site)return `${region} (${site})`;
+  return region||site||meta.site_id||'Site';
+}
+
+function parseMarkdown(text,path){
+  const {meta,body}=extractFrontMatter(text,path);
+  const table=parseMarkdownTable(body,path);
+  return {meta,table};
+}
+
+function extractFrontMatter(text,path){
+  const lines=text.split(/\r?\n/);
+  if(lines[0]?.trim()!=='---')return{meta:{},body:text};
+  let end=1;
+  while(end<lines.length&&lines[end].trim()!=='---'){end++;}
+  if(end>=lines.length){
+    console.warn('Front matter not closed in',path);
+    return{meta:{},body:text};
+  }
+  const metaText=lines.slice(1,end).join('\n').trim();
+  let meta={};
+  if(metaText){
+    try{meta=JSON.parse(metaText);}catch(err){console.warn('Invalid front matter for',path,err);}
+  }
+  const body=lines.slice(end+1).join('\n');
+  return {meta,body};
+}
+
+function parseMarkdownTable(body,path){
+  const rows=body.split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+  const tableLines=rows.filter(line=>line.startsWith('|'));
+  if(!tableLines.length){
+    console.warn('No table content found in',path);
+    return{headers:[],rows:[]};
+  }
+  const headers=splitMarkdownRow(tableLines[0]);
+  let dataStart=1;
+  for(let i=1;i<tableLines.length;i++){
+    if(/^\|\s*:?[-]{2,}/.test(tableLines[i])){dataStart=i+1;break;}
+  }
+  const dataRows=tableLines.slice(dataStart).map(line=>{
+    const cells=splitMarkdownRow(line);
+    const record={};
+    headers.forEach((header,idx)=>{record[header]=cells[idx]??'';});
+    return record;
+  }).filter(record=>Object.values(record).some(value=>String(value).trim()!==''));
+  return{headers,rows:dataRows};
+}
+
+function splitMarkdownRow(line){
+  const trimmed=line.trim();
+  const inner=trimmed.replace(/^\|/,'').replace(/\|$/,'');
+  return inner.split('|').map(cell=>cell.trim());
+}
+
+function buildSites(entries){
   const siteMap=new Map();
-  rows.forEach(row=>{
-    const region=(row.Region||'').trim();
-    const siteName=(row.Site||'').trim();
-    const specimen=(row.Specimen_Type||'').trim();
-    const organism=(row.Organism||'').trim();
-    const antibiotic=(row.Antibiotic||'').trim();
-    const pct=Number((row.Susceptibility_Percent||'').replace('%',''));
-    if(!siteName||!specimen||!organism||!antibiotic||Number.isNaN(pct))return;
-    if(!siteMap.has(siteName)){
-      const display=region&&region!==siteName?`${region} (${siteName})`:(region||siteName);
-      siteMap.set(siteName,{id:slugify(siteName),name:display,contexts:new Map()});
+  entries.forEach(entry=>{
+    const meta=entry.meta||{};
+    const table=entry.table||{};
+    const headers=Array.isArray(table.headers)?table.headers:[];
+    if(!headers.length)return;
+    const siteId=(meta.site_id||slugify(meta.display||meta.site||meta.region||'site')).trim();
+    const siteName=(meta.display||buildSiteDisplay(meta)).trim();
+    if(!siteMap.has(siteId)){
+      siteMap.set(siteId,{id:slugify(siteId),name:siteName,contexts:[]});
     }
-    const siteEntry=siteMap.get(siteName);
-    if(!siteEntry.contexts.has(specimen)){
-      siteEntry.contexts.set(specimen,{
-        id:slugify(specimen),
-        name:SPECIMEN_LABELS[specimen]||specimen,
-        flags:[],
-        organisms:new Map()
+    const siteEntry=siteMap.get(siteId);
+    const contextLabel=meta.context_label||meta.context||'Context';
+    const contextId=slugify(meta.context||contextLabel);
+    const notes=Array.isArray(meta.notes)?meta.notes.filter(Boolean):[];
+    const flags=Array.isArray(meta.flags)?meta.flags.filter(Boolean):[];
+    const isolatesHeader=headers.find(h=>h.toLowerCase()==='isolates')||headers[1];
+    const antibioticHeaders=headers.filter(h=>h!==isolatesHeader&&h!==headers[0]);
+    const organisms=[];
+    (table.rows||[]).forEach(row=>{
+      const organismName=row[headers[0]]||row.Organism||'';
+      if(!organismName) return;
+      const isolates=parseInteger(row[isolatesHeader]);
+      const antibiotics=[];
+      antibioticHeaders.forEach(header=>{
+        const pct=parseNumber(row[header]);
+        if(Number.isFinite(pct)){
+          const contraEntry=CONTRAINDICATIONS.get(canonicalDrugName(header));
+          antibiotics.push({
+            drug:header,
+            pctS:pct,
+            notes:[],
+            cautions:[],
+            flags:[],
+            contraindications:contraEntry?[...contraEntry.contraindications]:[],
+            interactions:contraEntry?[...contraEntry.interactions]:[]
+          });
+        }
       });
-    }
-    const ctxEntry=siteEntry.contexts.get(specimen);
-    if(!ctxEntry.organisms.has(organism)){
-      ctxEntry.organisms.set(organism,{
-        id:slugify(organism),
-        display:organism,
-        isolates:null,
-        antibiotics:[]
+      if(!antibiotics.length)return;
+      antibiotics.sort((a,b)=>b.pctS-a.pctS||a.drug.localeCompare(b.drug));
+      organisms.push({
+        id:slugify(organismName),
+        display:organismName,
+        isolates:Number.isFinite(isolates)?isolates:null,
+        antibiotics
       });
-    }
-    const orgEntry=ctxEntry.organisms.get(organism);
-    const contraEntry=CONTRAINDICATIONS.get(canonicalDrugName(antibiotic));
-    orgEntry.antibiotics.push({
-      drug:antibiotic,
-      pctS:pct,
-      notes:[],
-      cautions:[],
-      flags:[],
-      contraindications:contraEntry?[...contraEntry.contraindications]:[],
-      interactions:contraEntry?[...contraEntry.interactions]:[]
+    });
+    if(!organisms.length)return;
+    organisms.sort((a,b)=>a.display.localeCompare(b.display));
+    siteEntry.contexts.push({
+      id:contextId,
+      name:contextLabel,
+      flags,
+      notes,
+      organisms
     });
   });
 
   return Array.from(siteMap.values()).map(site=>{
-    const contexts=Array.from(site.contexts.values()).map(ctx=>{
-      const organisms=Array.from(ctx.organisms.values()).map(org=>{
-        org.antibiotics.sort((a,b)=>b.pctS-a.pctS||a.drug.localeCompare(b.drug));
-        return{
-          id:org.id,
-          display:org.display,
-          isolates:org.isolates,
-          antibiotics:org.antibiotics
-        };
-      }).sort((a,b)=>a.display.localeCompare(b.display));
-      return{
-        id:ctx.id,
-        name:ctx.name,
-        flags:ctx.flags,
-        organisms:organisms
-      };
-    }).sort((a,b)=>contextRank(a.name)-contextRank(b.name)||a.name.localeCompare(b.name));
-    return{
-      id:site.id,
-      name:site.name,
-      contexts:contexts
-    };
-  }).sort((a,b)=>a.name.localeCompare(b.name));
+    const contexts=site.contexts.filter(ctx=>ctx.organisms.length).sort((a,b)=>contextRank(a.name)-contextRank(b.name)||a.name.localeCompare(b.name));
+    return{...site,contexts};
+  }).filter(site=>site.contexts.length).sort((a,b)=>a.name.localeCompare(b.name));
+}
+
+function parseInteger(value){
+  if(value===null||value===undefined)return NaN;
+  const str=String(value).trim();
+  if(!str)return NaN;
+  const num=Number(str.replace(/,/g,''));
+  return Number.isFinite(num)?Math.round(num):NaN;
+}
+
+function parseNumber(value){
+  if(value===null||value===undefined)return NaN;
+  const str=String(value).trim();
+  if(!str)return NaN;
+  const cleaned=str.replace('%','');
+  const num=Number(cleaned);
+  return Number.isFinite(num)?Math.round(num):NaN;
 }
 
 function contextRank(name){
@@ -934,6 +917,8 @@ function renderContexts(siteId){
 function activateContext(ctxId){
   current.ctx=current.site.contexts.find(c=>c.id===ctxId);
   ctxDiv.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.id===ctxId));
+  flag.textContent='';
+  flag.hidden=true;
   renderOrganisms();
   showStep(2);
 }
@@ -961,7 +946,14 @@ function selectOrganism(id){
   }
   current.org=org;
   title.textContent=org.display;
-  flag.textContent=current.ctx.flags&&current.ctx.flags.includes('limited-isolates')?DATA.legend.badges['limited-isolates']:'';
+  const notice=getContextNotice(current.ctx);
+  if(notice){
+    flag.textContent=notice;
+    flag.hidden=false;
+  }else{
+    flag.textContent='';
+    flag.hidden=true;
+  }
   noData.hidden=true;
   renderAntibiotics();
   showStep(3);
@@ -990,6 +982,24 @@ function formatListItem(content){
   if(!normalized)return '';
   const escaped=escapeHtml(normalized);
   return escaped.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+}
+
+function getContextNotice(ctx){
+  if(!ctx)return '';
+  const notices=[];
+  if(Array.isArray(ctx.flags)){
+    ctx.flags.forEach(flagKey=>{
+      const text=DATA.legend.badges?DATA.legend.badges[flagKey]:null;
+      if(text)notices.push(text);
+      else if(typeof flagKey==='string'&&flagKey.trim())notices.push(flagKey.trim());
+    });
+  }
+  if(Array.isArray(ctx.notes)){
+    ctx.notes.forEach(note=>{
+      if(typeof note==='string'&&note.trim())notices.push(note.trim());
+    });
+  }
+  return notices.join(' • ');
 }
 
 function renderAntibiotics(){
