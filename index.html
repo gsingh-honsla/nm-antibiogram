@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Digital NM Antibiogram</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20120%20120%27%3E%3Ctext%20y%3D%270.9em%27%20font-size%3D%2796%27%3E%F0%9F%A6%A0%3C/text%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
 
@@ -108,7 +109,7 @@ h1 {
 
 main {
   max-width: 960px;
-  margin: 4rem auto 3.5rem;
+  margin: 4rem auto 0;
   padding: 0 1.5rem 4rem;
   display: grid;
   gap: 1.75rem;
@@ -135,6 +136,41 @@ label {
   color: var(--muted);
   display: block;
   margin-bottom: 0.65rem;
+}
+
+.back-button {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 157, 138, 0.28);
+  background: rgba(15, 157, 138, 0.12);
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent-strong);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.back-button .icon {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.back-button:hover,
+.back-button:focus {
+  background: rgba(15, 157, 138, 0.18);
+  border-color: rgba(15, 157, 138, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 18px 35px rgba(17, 32, 52, 0.16);
+}
+
+.back-button:focus-visible {
+  outline: 3px solid rgba(15, 157, 138, 0.35);
+  outline-offset: 2px;
 }
 
 select,
@@ -241,6 +277,7 @@ input[type="search"]:focus {
   font: inherit;
   color: var(--ink);
   cursor: pointer;
+  box-shadow: 0 14px 32px rgba(17, 32, 52, 0.12);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -254,7 +291,7 @@ input[type="search"]:focus {
 #organisms button:hover,
 #organisms button:focus {
   transform: translateY(-2px);
-  box-shadow: 0 16px 34px rgba(17, 32, 52, 0.18);
+  box-shadow: 0 24px 45px rgba(17, 32, 52, 0.22);
   border-color: rgba(15, 157, 138, 0.35);
 }
 
@@ -468,7 +505,7 @@ input[type="search"]:focus {
 }
 
 footer {
-  margin-top: 2rem;
+  margin-top: 0;
   padding: 2.25rem 1.5rem 3rem;
   text-align: center;
   color: var(--ink);
@@ -538,8 +575,8 @@ footer .credit {
   }
 
   main {
-    margin: 2.5rem auto 3rem;
-    padding-bottom: 3rem;
+    margin: 2.5rem auto 0;
+    padding-bottom: 2.5rem;
   }
 
   .view {
@@ -603,15 +640,18 @@ footer .credit {
 <select id="site"></select>
 </section>
 <section id="contextView" class="view" hidden>
+<button type="button" class="back-button" data-step="0"><span class="icon" aria-hidden="true">&larr;</span><span class="label">Back to site selection</span></button>
 <h2>Choose context</h2>
 <div id="context" role="tablist"></div>
 </section>
 <section id="organismView" class="view" hidden>
+<button type="button" class="back-button" data-step="1"><span class="icon" aria-hidden="true">&larr;</span><span class="label">Back to contexts</span></button>
 <label for="organismSearch" class="visually-hidden">Search organism</label>
 <input id="organismSearch" type="search" placeholder="Search organism" aria-label="Search organism">
 <ul id="organisms"></ul>
 </section>
 <section id="results" class="view" hidden>
+<button type="button" class="back-button" data-step="2"><span class="icon" aria-hidden="true">&larr;</span><span class="label">Back to organisms</span></button>
 <h2 id="organismTitle"></h2>
 <p id="contextFlag"></p>
 <label id="filter80"><input type="checkbox"> Show only ≥80% susceptible</label>
@@ -620,16 +660,13 @@ footer .credit {
 </section>
 </main>
 <footer>
-<div class="bands"><strong>Color key:</strong>
-<span><span class="chip band-red"></span>≤69%</span>
-<span><span class="chip band-yellow"></span>70–79%</span>
-<span><span class="chip band-green"></span>≥80%</span>
-</div>
+<div class="bands" id="colorKey"><strong>Color key:</strong></div>
 <p class="hint"></p>
 <p class="credit">Made with ❤️ for the Northwestern Medicine community.</p>
 </footer>
 <script>
 const DATA_INDEX='data/index.json';
+const DEFAULT_SITE_ID='nmh';
 
 const SPECIMEN_LABELS={
   'Blood':'Blood',
@@ -655,8 +692,14 @@ const CONTEXT_PRIORITY=[
 
 const CONTRA_FILE='contraindications.md';
 
+const SUSCEPTIBILITY_BANDS=[
+  {id:'green',label:'≥80%',min:80},
+  {id:'yellow',label:'70–79%',min:70,max:79},
+  {id:'red',label:'≤69%',max:69}
+];
+
 const LEGEND={
-  hint:'<strong>For severe syndromes aim for ≥90% when feasible; ≥80% may be acceptable for lower-risk infections.</strong> Use patient-level cultures and ID consult for definitive therapy. Data adapted from NM Antimicrobial and Diagnostic Stewardship Program based on <a href="https://adsp.nm.org/antibiogram-resources.html" target="_blank" rel="noopener noreferrer">2024 antibiograms</a>.',
+  hint:'<strong>For severe syndromes aim for ≥90% when feasible; ≥80% may be acceptable for lower-risk infections.</strong> Use patient-level cultures and ID consult for definitive therapy. Data adapted from the NM Antimicrobial and Diagnostic Stewardship Program based on <a href="https://adsp.nm.org/antibiogram-resources.html" target="_blank" rel="noopener noreferrer">2024 antibiograms</a>.',
   badges:{}
 };
 
@@ -665,7 +708,8 @@ let CONTRAINDICATIONS=new Map();
 let current={site:null,ctx:null,org:null};
 const qs=s=>document.querySelector(s);
 const siteSel=qs('#site'),ctxDiv=qs('#context'),orgSearch=qs('#organismSearch'),orgList=qs('#organisms');
-const results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics'),filter80=qs('#filter80 input'),flag=qs('#contextFlag'),noData=qs('#noData'),hint=qs('.hint'),homeLink=qs('#homeLink');
+const results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics'),filter80=qs('#filter80 input'),flag=qs('#contextFlag'),noData=qs('#noData'),hint=qs('.hint'),homeLink=qs('#homeLink'),colorKey=qs('#colorKey');
+const backButtons=Array.from(document.querySelectorAll('.back-button'));
 const views=['siteView','contextView','organismView','results'];
 let step=0;
 
@@ -801,6 +845,16 @@ function splitMarkdownRow(line){
   return inner.split('|').map(cell=>cell.trim());
 }
 
+function prioritizeDefaultSite(sites){
+  if(!Array.isArray(sites)||!sites.length||!DEFAULT_SITE_ID)return sites;
+  const index=sites.findIndex(site=>site.id===DEFAULT_SITE_ID);
+  if(index<=0)return sites;
+  const prioritized=sites.slice();
+  const [defaultSite]=prioritized.splice(index,1);
+  prioritized.unshift(defaultSite);
+  return prioritized;
+}
+
 function buildSites(entries){
   const siteMap=new Map();
   entries.forEach(entry=>{
@@ -861,10 +915,11 @@ function buildSites(entries){
     });
   });
 
-  return Array.from(siteMap.values()).map(site=>{
+  const sites=Array.from(siteMap.values()).map(site=>{
     const contexts=site.contexts.filter(ctx=>ctx.organisms.length).sort((a,b)=>contextRank(a.name)-contextRank(b.name)||a.name.localeCompare(b.name));
     return{...site,contexts};
   }).filter(site=>site.contexts.length).sort((a,b)=>a.name.localeCompare(b.name));
+  return prioritizeDefaultSite(sites);
 }
 
 function parseInteger(value){
@@ -895,22 +950,61 @@ function slugify(str){
 
 function init(){
   hint.innerHTML=DATA.legend.hint;
-  populateSites();
+  renderColorKey();
+  const hasDefaultSite=populateSites();
   siteSel.addEventListener('change',()=>{renderContexts(siteSel.value);showStep(1);});
   orgSearch.addEventListener('input',filterOrganisms);
   filter80.addEventListener('change',renderAntibiotics);
   homeLink.addEventListener('click',e=>{e.preventDefault();showStep(0);});
-  showStep(0);
+  backButtons.forEach(button=>button.addEventListener('click',handleBackNavigation));
+  showStep(hasDefaultSite?1:0);
+}
+
+function handleBackNavigation(event){
+  const targetStep=Number(event.currentTarget.dataset.step);
+  if(Number.isFinite(targetStep)){
+    showStep(Math.max(0,Math.min(views.length-1,targetStep)));
+  }
+}
+
+function renderColorKey(){
+  if(!colorKey)return;
+  const items=SUSCEPTIBILITY_BANDS.map(band=>`<span><span class="chip band-${band.id}" aria-hidden="true"></span>${escapeHtml(band.label)}</span>`).join('');
+  colorKey.innerHTML=`<strong>Color key:</strong>${items}`;
 }
 
 function populateSites(){
-  siteSel.innerHTML='<option value="" selected disabled>Select site</option>'+'\n'+
-    DATA.sites.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  const hasDefault=DATA.sites.some(site=>site.id===DEFAULT_SITE_ID);
+  const placeholderAttrs=hasDefault?' disabled hidden':' disabled selected';
+  const options=DATA.sites.map(site=>{
+    const selected=hasDefault&&site.id===DEFAULT_SITE_ID?' selected':'';
+    return `<option value="${site.id}"${selected}>${escapeHtml(site.name)}</option>`;
+  }).join('');
+  siteSel.innerHTML=`<option value=""${placeholderAttrs}>Select site</option>\n${options}`;
+  if(hasDefault){
+    siteSel.value=DEFAULT_SITE_ID;
+    renderContexts(DEFAULT_SITE_ID);
+  }else{
+    ctxDiv.innerHTML='';
+  }
+  return hasDefault;
 }
 
 function renderContexts(siteId){
-  current.site=DATA.sites.find(s=>s.id===siteId);
-  ctxDiv.innerHTML=current.site.contexts.map(c=>`<button data-id="${c.id}">${c.name}</button>`).join('');
+  current.site=DATA.sites.find(s=>s.id===siteId)||null;
+  current.ctx=null;
+  current.org=null;
+  ctxDiv.innerHTML='';
+  orgList.innerHTML='';
+  orgSearch.value='';
+  filter80.checked=false;
+  title.textContent='';
+  flag.textContent='';
+  flag.hidden=true;
+  antList.innerHTML='';
+  noData.hidden=true;
+  if(!current.site)return;
+  ctxDiv.innerHTML=current.site.contexts.map(c=>`<button data-id="${c.id}">${escapeHtml(c.name)}</button>`).join('');
   ctxDiv.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>activateContext(b.dataset.id)));
 }
 
@@ -924,8 +1018,12 @@ function activateContext(ctxId){
 }
 
 function renderOrganisms(){
+  if(!current.ctx){
+    orgList.innerHTML='';
+    return;
+  }
   const orgs=current.ctx.organisms.slice().sort((a,b)=>a.display.localeCompare(b.display));
-  orgList.innerHTML=orgs.map(o=>`<li><button data-id="${o.id}">${o.display}</button></li>`).join('');
+  orgList.innerHTML=orgs.map(o=>`<li><button data-id="${o.id}">${escapeHtml(o.display)}</button></li>`).join('');
   orgList.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>selectOrganism(b.dataset.id)));
   orgSearch.value='';
   filterOrganisms();
@@ -1002,13 +1100,37 @@ function getContextNotice(ctx){
   return notices.join(' • ');
 }
 
+function getSusceptibilityBand(pct){
+  if(!Number.isFinite(pct))return SUSCEPTIBILITY_BANDS[0].id;
+  for(const band of SUSCEPTIBILITY_BANDS){
+    const hasMin=typeof band.min==='number';
+    const hasMax=typeof band.max==='number';
+    if(hasMin&&hasMax&&pct>=band.min&&pct<=band.max)return band.id;
+    if(hasMin&&!hasMax&&pct>=band.min)return band.id;
+    if(!hasMin&&hasMax&&pct<=band.max)return band.id;
+  }
+  return SUSCEPTIBILITY_BANDS[0].id;
+}
+
+function getBandLabel(bandId){
+  const entry=SUSCEPTIBILITY_BANDS.find(band=>band.id===bandId);
+  return entry?entry.label:'';
+}
+
 function renderAntibiotics(){
   antList.innerHTML='';
+  if(!current.org){
+    noData.hidden=true;
+    return;
+  }
   let count=0;
+  const greenBand=SUSCEPTIBILITY_BANDS.find(band=>band.id==='green');
+  const minForFilter=greenBand&&typeof greenBand.min==='number'?greenBand.min:80;
   const abs=current.org.antibiotics.slice().sort((a,b)=>b.pctS-a.pctS||a.drug.localeCompare(b.drug));
   abs.forEach(ab=>{
-    if(filter80.checked&&ab.pctS<80)return;
-    const band=ab.pctS>=80?'green':ab.pctS>=70?'yellow':'red';
+    if(filter80.checked&&ab.pctS<minForFilter)return;
+    const band=getSusceptibilityBand(ab.pctS);
+    const bandLabel=getBandLabel(band);
     const badges=(ab.flags||[]).map(f=>`<span class="badge">${DATA.legend.badges[f]||f}</span>`).join('');
     const sections=[];
     const contraindicationsSection=renderInfoSection('Contraindications',ab.contraindications);
@@ -1025,7 +1147,8 @@ function renderAntibiotics(){
     const badgeGroup=badges?`<span class="badge-group">${badges}</span>`:'';
     const metaParts=[infoTag,badgeGroup].filter(Boolean);
     const metaHtml=metaParts.length?`<span class="meta">${metaParts.join('')}</span>`:'';
-    const pctHtml=`<span class="pct"><span class="chip band-${band}" aria-hidden="true"></span>${ab.pctS}%</span>`;
+    const accessibleBand=bandLabel?`<span class="visually-hidden">${bandLabel} susceptible – </span>`:'';
+    const pctHtml=`<span class="pct"><span class="chip band-${band}" aria-hidden="true"></span>${accessibleBand}${ab.pctS}%</span>`;
     const summaryRight=`<span class="summary-right">${metaHtml}${pctHtml}</span>`;
     const drawer=hasInfo?`<div class="drawer">${sections.join('')}</div>`:'';
     const cls=hasInfo?' class="has-info"':'';
