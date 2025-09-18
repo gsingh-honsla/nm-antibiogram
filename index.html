@@ -1270,9 +1270,15 @@ function init(){
   hint.innerHTML=DATA.legend.hint;
   populateSites();
   siteSel.addEventListener('change',()=>{
+    const selectedSite=siteSel.value;
     updateSiteContinueState();
-    renderContexts('');
-    showStep(0);
+    if(selectedSite){
+      renderContexts(selectedSite);
+      showStep(1);
+    }else{
+      renderContexts('');
+      showStep(0);
+    }
   });
   if(siteContinue){
     siteContinue.addEventListener('click',()=>{
