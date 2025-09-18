@@ -836,7 +836,7 @@ footer .credit {
 <main>
 <section id="siteView" class="view">
 <label for="site">Select site:</label>
-<select id="site"></select>
+<select id="site" data-focus-default></select>
 <button type="button" id="siteContinue" class="continue-button" disabled>
   <span class="label">Continue</span>
   <span class="icon" aria-hidden="true">&rarr;</span>
@@ -850,7 +850,7 @@ footer .credit {
 <section id="organismView" class="view" hidden>
 <button type="button" class="back-button" data-step="1"><span class="icon" aria-hidden="true">&larr;</span><span class="label">Back to contexts</span></button>
 <label for="organismSearch" class="visually-hidden">Search organism</label>
-<input id="organismSearch" type="search" placeholder="Search organism" aria-label="Search organism">
+<input id="organismSearch" type="search" placeholder="Search organism" aria-label="Search organism" data-focus-default>
 <ul id="organisms"></ul>
 </section>
 <section id="results" class="view" hidden>
@@ -929,6 +929,10 @@ const qs=s=>document.querySelector(s);
 const siteSel=qs('#site'),ctxDiv=qs('#context'),orgSearch=qs('#organismSearch'),orgList=qs('#organisms');
 const results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics'),filter80=qs('#filter80 input'),flag=qs('#contextFlag'),noData=qs('#noData'),hint=qs('.hint'),homeLink=qs('#homeLink'),siteContinue=qs('#siteContinue'),resultsHint=qs('#resultsHint');
 const backButtons=Array.from(document.querySelectorAll('.back-button'));
+const headerEl=qs('header');
+const prefersReducedMotion=typeof window!=='undefined'&&typeof window.matchMedia==='function'?window.matchMedia('(prefers-reduced-motion: reduce)'):null;
+const FOCUSABLE_SELECTOR='button:not([disabled]), [href], input:not([type="hidden"]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+const VIEW_SCROLL_PADDING=16;
 const views=['siteView','contextView','organismView','results'];
 let step=0;
 
@@ -1340,8 +1344,18 @@ function renderContexts(siteId){
   antList.innerHTML='';
   noData.hidden=true;
   if(!current.site)return;
-  ctxDiv.innerHTML=current.site.contexts.map(c=>`<button data-id="${c.id}">${escapeHtml(c.name)}</button>`).join('');
-  ctxDiv.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>activateContext(b.dataset.id)));
+  ctxDiv.innerHTML=current.site.contexts.map((c,index)=>{
+    const focusAttr=index===0?' data-focus-default':'';
+    return `<button data-id="${c.id}"${focusAttr}>${escapeHtml(c.name)}</button>`;
+  }).join('');
+  ctxDiv.querySelectorAll('button').forEach((b,index)=>{
+    if(index===0){
+      b.setAttribute('data-focus-default','');
+    }else{
+      b.removeAttribute('data-focus-default');
+    }
+    b.addEventListener('click',()=>activateContext(b.dataset.id));
+  });
 }
 
 function activateContext(ctxId){
@@ -1588,8 +1602,63 @@ function renderAntibiotics(){
   noData.hidden=count>0;
 }
 
+function getHeaderHeight(){
+  if(!headerEl)return 0;
+  const rect=headerEl.getBoundingClientRect();
+  return rect.height||0;
+}
+
+function shouldScrollToView(view){
+  if(!view)return false;
+  const rect=view.getBoundingClientRect();
+  if(rect.height===0)return false;
+  const headerHeight=getHeaderHeight();
+  const viewportTop=headerHeight+VIEW_SCROLL_PADDING;
+  const viewportBottom=window.innerHeight-VIEW_SCROLL_PADDING;
+  const tolerance=4;
+  return rect.top<viewportTop-tolerance||rect.top>viewportBottom+tolerance;
+}
+
+function scrollViewIntoPosition(view){
+  if(!view)return;
+  const rect=view.getBoundingClientRect();
+  const headerHeight=getHeaderHeight();
+  const targetY=window.scrollY+rect.top-headerHeight-VIEW_SCROLL_PADDING;
+  const behavior=prefersReducedMotion&&prefersReducedMotion.matches?'auto':'smooth';
+  window.scrollTo({top:Math.max(0,targetY),behavior});
+}
+
+function focusView(view){
+  if(!view)return;
+  let target=view.querySelector('[data-focus-default]');
+  if(!target){
+    target=view.querySelector('[autofocus]');
+  }
+  if(!target){
+    target=view.querySelector(FOCUSABLE_SELECTOR);
+  }
+  if(!target){
+    if(!view.hasAttribute('tabindex')){
+      view.setAttribute('tabindex','-1');
+      view.addEventListener('blur',()=>view.removeAttribute('tabindex'),{once:true});
+    }
+    target=view;
+  }
+  safeFocus(target);
+}
+
+function safeFocus(element){
+  if(!element||typeof element.focus!=='function')return;
+  try{
+    element.focus({preventScroll:true});
+  }catch(err){
+    try{element.focus();}catch(e){}
+  }
+}
+
 function showStep(n){
-  step=Math.max(0,Math.min(views.length-1,n));
+  const targetStep=Math.max(0,Math.min(views.length-1,n));
+  step=targetStep;
   views.forEach((v,i)=>{
     const el=qs('#'+v);
     if(!el)return;
@@ -1604,8 +1673,17 @@ function showStep(n){
     }
   });
   const activeView=qs('#'+views[step]);
-  if(activeView){
-    activeView.scrollIntoView({behavior:'smooth',block:'start'});
+  if(!activeView)return;
+  const runAfterLayout=()=>{
+    if(shouldScrollToView(activeView)){
+      scrollViewIntoPosition(activeView);
+    }
+    focusView(activeView);
+  };
+  if(typeof requestAnimationFrame==='function'){
+    requestAnimationFrame(runAfterLayout);
+  }else{
+    runAfterLayout();
   }
 }
 </script>
