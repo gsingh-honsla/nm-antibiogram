@@ -127,6 +127,10 @@ main {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.view[hidden] {
+  display: none;
+}
+
 .view:not([hidden]):hover {
   transform: translateY(-4px);
   box-shadow: 0 26px 50px rgba(17, 32, 52, 0.26);
@@ -324,7 +328,7 @@ input[type="search"]:focus {
   font: inherit;
   color: var(--ink);
   cursor: pointer;
-  box-shadow: 0 14px 32px rgba(17, 32, 52, 0.12);
+  box-shadow: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -338,13 +342,23 @@ input[type="search"]:focus {
 #organisms button:hover,
 #organisms button:focus {
   transform: translateY(-2px);
-  box-shadow: 0 24px 45px rgba(17, 32, 52, 0.22);
+  box-shadow: 0 18px 38px rgba(17, 32, 52, 0.2);
   border-color: rgba(15, 157, 138, 0.35);
 }
 
 #organisms button:hover::after,
 #organisms button:focus::after {
   transform: translateX(4px);
+  color: var(--accent-strong);
+}
+
+#organisms button.active {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.22), rgba(192, 132, 252, 0.2));
+  border-color: rgba(168, 85, 247, 0.3);
+  box-shadow: 0 14px 35px rgba(91, 33, 182, 0.25);
+}
+
+#organisms button.active::after {
   color: var(--accent-strong);
 }
 
@@ -498,17 +512,6 @@ input[type="search"]:focus {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-}
-
-#antibiotics .info-tag {
-  background: rgba(240, 82, 82, 0.18);
-  color: #b91c1c;
-  border-radius: 999px;
-  padding: 0.2rem 0.65rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
 }
 
 #antibiotics details.has-info .drug {
@@ -853,7 +856,7 @@ footer .credit {
 <section id="results" class="view" hidden>
 <button type="button" class="back-button" data-step="2"><span class="icon" aria-hidden="true">&larr;</span><span class="label">Back to organisms</span></button>
 <h2 id="organismTitle"></h2>
-<p id="resultsHint" class="view-hint" hidden>Click on a particular antimicrobial agent for more details.</p>
+<p id="resultsHint" class="view-hint" hidden>Click on an antimicrobial agent for more details.</p>
 <p id="contextFlag"></p>
 <label id="filter80"><input type="checkbox"> Show only ≥80% susceptible</label>
 <ul id="antibiotics"></ul>
@@ -1336,8 +1339,20 @@ function renderContexts(siteId){
 }
 
 function activateContext(ctxId){
-  current.ctx=current.site.contexts.find(c=>c.id===ctxId);
+  const previousCtxId=current.ctx?current.ctx.id:null;
+  const contexts=Array.isArray(current.site?.contexts)?current.site.contexts:[];
+  current.ctx=contexts.find(c=>c.id===ctxId)||null;
   ctxDiv.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.id===ctxId));
+  if(!current.ctx){
+    current.org=null;
+    flag.textContent='';
+    flag.hidden=true;
+    renderOrganisms();
+    return;
+  }
+  if(current.ctx.id!==previousCtxId){
+    current.org=null;
+  }
   flag.textContent='';
   flag.hidden=true;
   renderOrganisms();
@@ -1347,13 +1362,16 @@ function activateContext(ctxId){
 function renderOrganisms(){
   if(!current.ctx){
     orgList.innerHTML='';
+    current.org=null;
     return;
   }
   const orgs=current.ctx.organisms.slice().sort((a,b)=>a.display.localeCompare(b.display));
   orgList.innerHTML=orgs.map(o=>`<li><button data-id="${o.id}">${escapeHtml(o.display)}</button></li>`).join('');
-  orgList.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>selectOrganism(b.dataset.id)));
+  const buttons=orgList.querySelectorAll('button');
+  buttons.forEach(b=>b.addEventListener('click',()=>selectOrganism(b.dataset.id)));
   orgSearch.value='';
   filterOrganisms();
+  highlightCurrentOrganism();
 }
 
 function filterOrganisms(){
@@ -1363,13 +1381,32 @@ function filterOrganisms(){
   });
 }
 
+function highlightCurrentOrganism(){
+  const selectedId=current.org?current.org.id:null;
+  let hasMatch=false;
+  orgList.querySelectorAll('button').forEach(button=>{
+    const isMatch=Boolean(selectedId)&&button.dataset.id===selectedId;
+    button.classList.toggle('active',isMatch);
+    if(isMatch){
+      hasMatch=true;
+    }
+  });
+  if(selectedId&&!hasMatch){
+    current.org=null;
+  }
+}
+
 function selectOrganism(id){
-  const org=current.ctx.organisms.find(o=>o.id===id);
+  const ctxOrganisms=Array.isArray(current.ctx?.organisms)?current.ctx.organisms:[];
+  const org=ctxOrganisms.find(o=>o.id===id);
   if(!org){
     noData.hidden=false;
+    current.org=null;
+    highlightCurrentOrganism();
     return;
   }
   current.org=org;
+  highlightCurrentOrganism();
   title.textContent=org.display;
   const notice=getContextNotice(current.ctx);
   if(notice){
@@ -1526,15 +1563,12 @@ function renderAntibiotics(){
     if(cautionsSection)infoSections.push(cautionsSection);
     const infoGrid=infoSections.length?`<div class="info-grid">${infoSections.join('')}</div>`:'';
     const cardSegments=[];
-    if(coverageHtml)cardSegments.push(coverageHtml);
     if(infoGrid)cardSegments.push(infoGrid);
+    if(coverageHtml)cardSegments.push(coverageHtml);
     const drawerContent=cardSegments.length?`<div class="agent-card">${cardSegments.join('')}</div>`:'';
     const hasInfo=Boolean(drawerContent);
-    const infoLabel=ab.contraindications&&ab.contraindications.length?'Contraindications':hasInfo?'Details':'';
-    const infoTag=infoLabel?`<span class="info-tag">${infoLabel}</span>`:'';
     const badgeGroup=badges?`<span class="badge-group">${badges}</span>`:'';
-    const metaParts=[infoTag,badgeGroup].filter(Boolean);
-    const metaHtml=metaParts.length?`<span class="meta">${metaParts.join('')}</span>`:'';
+    const metaHtml=badgeGroup?`<span class="meta">${badgeGroup}</span>`:'';
     const accessibleBand=bandLabel?`<span class="visually-hidden">${bandLabel} susceptible – </span>`:'';
     const pctHtml=`<span class="pct"><span class="chip band-${band}" aria-hidden="true"></span>${accessibleBand}${ab.pctS}%</span>`;
     const routeChips=renderRouteChips(ab.routes);
@@ -1550,7 +1584,23 @@ function renderAntibiotics(){
 
 function showStep(n){
   step=Math.max(0,Math.min(views.length-1,n));
-  views.forEach((v,i)=>{qs('#'+v).hidden=i!==step;});
+  views.forEach((v,i)=>{
+    const el=qs('#'+v);
+    if(!el)return;
+    const isActive=i===step;
+    el.hidden=!isActive;
+    if(isActive){
+      el.removeAttribute('aria-hidden');
+      el.removeAttribute('inert');
+    }else{
+      el.setAttribute('aria-hidden','true');
+      el.setAttribute('inert','');
+    }
+  });
+  const activeView=qs('#'+views[step]);
+  if(activeView){
+    activeView.scrollIntoView({behavior:'smooth',block:'start'});
+  }
 }
 </script>
 </body>
