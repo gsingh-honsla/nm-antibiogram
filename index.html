@@ -723,31 +723,6 @@ footer {
   justify-items: center;
 }
 
-footer .bands {
-  display: flex;
-  gap: 1.2rem;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  font-weight: 600;
-}
-
-footer .bands span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 0.85rem;
-  border-radius: 999px;
-  background: rgba(15, 157, 138, 0.08);
-}
-
-footer .bands .chip {
-  width: 1.2rem;
-  height: 1.2rem;
-  border-radius: 50%;
-  box-shadow: var(--chip-shadow);
-}
-
 footer .hint {
   margin: 0;
   font-size: 1.05rem;
@@ -886,7 +861,6 @@ footer .credit {
 </section>
 </main>
 <footer>
-<div class="bands" id="colorKey"><strong>Color key:</strong></div>
 <p class="hint"></p>
 <p class="credit">Made with ❤️ for the Northwestern Medicine community.</p>
 </footer>
@@ -950,7 +924,7 @@ let CONTRAINDICATIONS=new Map();
 let current={site:null,ctx:null,org:null};
 const qs=s=>document.querySelector(s);
 const siteSel=qs('#site'),ctxDiv=qs('#context'),orgSearch=qs('#organismSearch'),orgList=qs('#organisms');
-const results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics'),filter80=qs('#filter80 input'),flag=qs('#contextFlag'),noData=qs('#noData'),hint=qs('.hint'),homeLink=qs('#homeLink'),colorKey=qs('#colorKey'),siteContinue=qs('#siteContinue'),resultsHint=qs('#resultsHint');
+const results=qs('#results'),title=qs('#organismTitle'),antList=qs('#antibiotics'),filter80=qs('#filter80 input'),flag=qs('#contextFlag'),noData=qs('#noData'),hint=qs('.hint'),homeLink=qs('#homeLink'),siteContinue=qs('#siteContinue'),resultsHint=qs('#resultsHint');
 const backButtons=Array.from(document.querySelectorAll('.back-button'));
 const views=['siteView','contextView','organismView','results'];
 let step=0;
@@ -1291,16 +1265,17 @@ function slugify(str){
 
 function init(){
   hint.innerHTML=DATA.legend.hint;
-  renderColorKey();
   populateSites();
   siteSel.addEventListener('change',()=>{
-    renderContexts(siteSel.value);
     updateSiteContinueState();
+    renderContexts('');
     showStep(0);
   });
   if(siteContinue){
     siteContinue.addEventListener('click',()=>{
-      if(!siteSel.value)return;
+      const selectedSite=siteSel.value;
+      if(!selectedSite)return;
+      renderContexts(selectedSite);
       showStep(1);
     });
   }
@@ -1325,12 +1300,6 @@ function handleBackNavigation(event){
   }
 }
 
-function renderColorKey(){
-  if(!colorKey)return;
-  const items=SUSCEPTIBILITY_BANDS.map(band=>`<span><span class="chip band-${band.id}" aria-hidden="true"></span>${escapeHtml(band.label)}</span>`).join('');
-  colorKey.innerHTML=`<strong>Color key:</strong>${items}`;
-}
-
 function populateSites(){
   const hasDefault=DATA.sites.some(site=>site.id===DEFAULT_SITE_ID);
   const placeholderAttrs=hasDefault?' disabled hidden':' disabled selected';
@@ -1341,10 +1310,8 @@ function populateSites(){
   siteSel.innerHTML=`<option value=""${placeholderAttrs}>Select site</option>\n${options}`;
   if(hasDefault){
     siteSel.value=DEFAULT_SITE_ID;
-    renderContexts(DEFAULT_SITE_ID);
-  }else{
-    ctxDiv.innerHTML='';
   }
+  renderContexts('');
   updateSiteContinueState();
   return hasDefault;
 }
